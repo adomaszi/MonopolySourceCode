@@ -1,0 +1,11 @@
+App.xbf
+Microsoft.UI.Xaml\DensityStyles\Compact.xbf
+Styles\_Colors.xbf
+Styles\_FontSizes.xbf
+Styles\_Thickness.xbf
+Styles\Page.xbf
+Styles\TextBlock.xbf
+Views\AboutPage.xbf
+Views\AnalysisPage.xbf
+Views\ShellPage.xbf
+Views\SimulationPage.xbf

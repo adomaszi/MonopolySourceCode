@@ -1,0 +1,2 @@
+Microsoft.Extensions.Configuration.Binder, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60
+  Microsoft.Extensions.Configuration.Binder.Resources.resources
