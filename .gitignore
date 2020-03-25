@@ -1,1 +1,3 @@
-MonopolyAnalysis/bin
+./bin
+./obj/ARM
+./obj/x86

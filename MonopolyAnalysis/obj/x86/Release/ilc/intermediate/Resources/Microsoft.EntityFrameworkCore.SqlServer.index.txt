@@ -1,2 +1,0 @@
-Microsoft.EntityFrameworkCore.SqlServer, Version=2.1.11.0, Culture=neutral, PublicKeyToken=adb9793829ddae60
-  Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings.resources

@@ -1,9 +1,0 @@
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.csproj.CoreCompileInputs.cache
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.AssemblyInfoInputs.cache
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.AssemblyInfo.cs
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\bin\Debug\netstandard2.0\MonopolyAnalysis.Core.deps.json
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\bin\Debug\netstandard2.0\MonopolyAnalysis.Core.dll
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\bin\Debug\netstandard2.0\MonopolyAnalysis.Core.pdb
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.csprojAssemblyReference.cache
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.dll
-C:\Users\zitku\OneDrive\Desktop\Threading\MonopolyAnalysis\MonopolyAnalysis.Core\obj\Debug\netstandard2.0\MonopolyAnalysis.Core.pdb

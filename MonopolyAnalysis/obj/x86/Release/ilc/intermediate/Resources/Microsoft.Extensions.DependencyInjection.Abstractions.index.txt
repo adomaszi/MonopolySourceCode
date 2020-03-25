@@ -1,2 +1,0 @@
-Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60
-  Microsoft.Extensions.DependencyInjection.Abstractions.Resources.resources
