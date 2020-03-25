@@ -26,19 +26,15 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
         }
-        private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
- 
 
-            switch (args.InvokedItem.ToString())
-            {
-                case "Simulation":
-                    this.Frame.Navigate(typeof(SimulationPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-                    break;
-                case "Analysis":
-                    this.Frame.Navigate(typeof(AnalysisPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-                    break;
-            }
+        private void NavigateToAnalysisPage(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AnalysisPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
+        }
+
+        private void NavigateToSimulaitonPage(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(SimulationPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
     }
 }

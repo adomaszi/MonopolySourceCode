@@ -34,30 +34,14 @@ namespace MonopolyAnalysis
             this.InitializeComponent();
         }
 
- 
-        private void NavigateToAnalysis(object sender, RoutedEventArgs e)
+        private void NavigateToAnalysisPage(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(AnalysisPage));
+            this.Frame.Navigate(typeof(AnalysisPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
 
-        private void NavigateToAnalysis(object sender, KeyRoutedEventArgs e)
+        private void NavigateToAboutPage(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(AnalysisPage));
-        }
-
-        private void Navigate(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-            Debug.Print(args.InvokedItem.ToString());
-    
-            switch (args.InvokedItem.ToString())
-            {
-                case "Analysis":
-                    this.Frame.Navigate(typeof(AnalysisPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-                    break;
-                case "About":
-                    this.Frame.Navigate(typeof(AboutPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-                    break;
-            }
+            this.Frame.Navigate(typeof(AboutPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
 
         private void PlayerAmountSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)

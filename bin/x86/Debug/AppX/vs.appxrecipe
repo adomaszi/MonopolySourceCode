@@ -30,13 +30,13 @@
     <AppXManifest Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\Core\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2020-03-25T13:12:36.082</Modified>
+      <Modified>2020-03-25T17:01:11.711</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\MonolpolyAnalysis.exe">
       <PackagePath>entrypoint\MonolpolyAnalysis.exe</PackagePath>
-      <Modified>2020-03-25T13:12:35.324</Modified>
+      <Modified>2020-03-25T17:01:10.878</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Microsoft SDKs\UWPNuGetPackages\runtime.win10-x86.microsoft.netcore.universalwindowsplatform\6.2.8\runtimes\win10-x86\lib\uap10.0.15138\System.Runtime.dll">
       <PackagePath>System.Runtime.dll</PackagePath>
@@ -86,23 +86,23 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\MonolpolyAnalysis.xr.xml">
       <PackagePath>MonolpolyAnalysis.xr.xml</PackagePath>
-      <Modified>2020-03-25T13:12:35.022</Modified>
+      <Modified>2020-03-25T16:58:12.030</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\App.xbf">
       <PackagePath>App.xbf</PackagePath>
-      <Modified>2020-03-25T13:12:35.050</Modified>
+      <Modified>2020-03-25T17:01:10.603</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\AnalysisPage.xbf">
       <PackagePath>AnalysisPage.xbf</PackagePath>
-      <Modified>2020-03-25T13:12:35.051</Modified>
+      <Modified>2020-03-25T17:01:10.603</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\AboutPage.xbf">
       <PackagePath>AboutPage.xbf</PackagePath>
-      <Modified>2020-03-25T13:12:35.051</Modified>
+      <Modified>2020-03-25T17:01:10.604</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\SimulaitonPage.xbf">
       <PackagePath>SimulaitonPage.xbf</PackagePath>
-      <Modified>2020-03-25T13:12:35.050</Modified>
+      <Modified>2020-03-25T17:01:10.602</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\10.0.18362.0\Windows.winmd">
       <PackagePath>WinMetadata\Windows.winmd</PackagePath>
@@ -114,7 +114,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\zitku\source\repos\MonolpolyAnalysis\bin\x86\Debug\Core\MonolpolyAnalysis.exe">
       <PackagePath>MonolpolyAnalysis.exe</PackagePath>
-      <Modified>2020-03-25T13:12:36.073</Modified>
+      <Modified>2020-03-25T17:01:11.701</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>
