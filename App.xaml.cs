@@ -14,6 +14,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Data.Sqlite;
+using Windows.Storage;
+using System.Diagnostics;
 
 namespace MonopolyAnalysis
 {
@@ -30,6 +33,15 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            DataAccess.InitializeDatabase();
+            DataAccess.AddData("Hello");
+            DataAccess.AddData("World");
+
+            List<String> strings = DataAccess.GetData();
+            foreach(String String in strings) {
+                Debug.WriteLine(String);
+            }
         }
 
         /// <summary>
