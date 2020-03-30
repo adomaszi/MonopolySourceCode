@@ -1,3 +1,2 @@
-./bin/
-./obj/ARM/
-./obj/x86/
+bin/**
+obj/**
