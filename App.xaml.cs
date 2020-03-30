@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,6 +31,17 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            DataAccess.InitializeDatabase();
+
+            DataAccess.AddData("Hello");
+            DataAccess.AddData("World");
+
+            List<String> Strings = DataAccess.GetData();
+            foreach(String String in Strings)
+            {
+                Debug.WriteLine(String);
+            }
         }
 
         /// <summary>
