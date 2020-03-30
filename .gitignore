@@ -1,6 +1,8 @@
-./bin
-./obj/ARM
-./obj/x86
-/bin
-/obj/ARM
-/obj/x86
+./bin/
+./obj/ARM/
+./obj/x86/
+/bin/
+/obj/ARM/
+/obj/x86/
+.vs/
+./.vs/
