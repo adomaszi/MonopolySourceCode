@@ -6,14 +6,13 @@ namespace MonopolyAnalysis
 {
     public class DataCollector
     {
-        public delegate void simulationCompleteHandler(object source, List<Move> moves, int playerAmount);
+        public delegate void simulationCompleteHandler(object source, List<Move> moves, int playerAmount, Board board);
 
         public event simulationCompleteHandler SimulationComplete;
 
-        Monopoly.Program _program;
-
-        List<Move> _moves = new List<Move>();
-
+        private Monopoly.Program _program;
+        private Board _board;
+        private List<Move> _moves = new List<Move>();
         private int _playerAmount;
 
         public DataCollector(int playerAmount)
@@ -24,7 +23,7 @@ namespace MonopolyAnalysis
 
         public void Start()
         {
-            Board board = _program.StartGame(_playerAmount, 90, this);
+            _board = _program.StartGame(_playerAmount, 90, this);
             onSimulationComplete();
         }
 
@@ -36,8 +35,9 @@ namespace MonopolyAnalysis
         protected virtual void onSimulationComplete()
         {
             if (SimulationComplete != null)
-                SimulationComplete(this, _moves, _playerAmount);
-            
+            {
+                SimulationComplete(this, _moves, _playerAmount, _board);
+            }
         }
        
     }

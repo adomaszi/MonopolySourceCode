@@ -9,25 +9,23 @@
     mc:Ignorable="d"
     NavigationCacheMode="1"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
+
 
     <Grid Background="#FF726DA8">
 
-        
+
         <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="49*"/>
-                <ColumnDefinition Width="201*"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Simulation" Width="80" Margin="10,0,0,0" />
-            <Button Click="NavigateToAnalysisPage" Content="Analysis" Width="80" Margin="100,0,0,0" />
-            <Button Click="NavigateToAboutPage" Content="About" Width="80" Margin="190,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Width="800" Margin="335.9,0,216,0" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.ZIndex="2">
+                <Button Content="Simulation" Width="90" Height="32" />
+                <Button Click="NavigateToAnalysisPage" Content="Analysis" Width="80" Height="32" Margin="10,0,10,0" />
+                <Button Click="NavigateToAboutPage" Content="About" Width="80" Height="32"/>
+            </StackPanel>
         </Grid>
         <TextBlock x:Name="title" Text="Simulation" Margin="10,75,-10,-47" />
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,47,0,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10" ViewChanged="ScrollViewer_ViewChanged">
             <Grid>
 
-                <StackPanel Orientation="Vertical" Width="800" Margin="216,60,216,337">
+                <StackPanel Orientation="Vertical" Width="800" Margin="205,60,216,337">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FocusVisualPrimaryBrush="Black" FontSize="24" FontFamily="Arial Black" HorizontalAlignment="Left" >Record count</TextBlock>
                     </StackPanel>
@@ -89,9 +87,14 @@
                         <TextBlock x:Name = "processorCountLabel" Margin = "0,10,0,10" Text = "Amount of virtual processors to split the tasks 4" Width="330" Height="20" FontSize="14"  />
                         <Slider x:Name = "processorCount" Value="2" Minimum="2" Maximum="24"  ValueChanged="ProcessorCount_ValueChanged" Width="450"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                        <TextBlock x:Name = "simulationTime" Margin = "0,10,60,10" Text = "Time elapsed" FontSize="14" FontFamily="Segoe UI"  />
-                        <Button x:Name = "simulationButton" Content="Start simulations" Click="startSimulation" />
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                            <TextBlock x:Name = "simulationProgress" Text="Progress" Margin = "0,10,60,10" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="353"  />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Width="657" HorizontalAlignment="Right" VerticalAlignment="Stretch" >
+                            <TextBlock x:Name = "simulationTime" Margin = "50,10,60,10" Text = "Time elapsed" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="102"  />
+                            <Button x:Name = "simulationButton" Content="Start simulations" Click="StartSimulation" VerticalAlignment="Stretch" Width="154" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
 
