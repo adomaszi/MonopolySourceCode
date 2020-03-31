@@ -53,6 +53,7 @@ namespace MonopolyAnalysis
 
         private void AnalyzeWinnerAverageRoll()
         {
+            // DataAccess.GetRollsOfWinners returns a List<int> with all rolls that winners made. To get the average, the calculation needs to be done here with plinq
             DataAccess.GetRollsOfWinners(4);
         }
 
