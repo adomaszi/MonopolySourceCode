@@ -36,6 +36,9 @@ namespace MonopolyAnalysis
             // Remove them from here and put them into the single/multi threaded analysis
             AnalyzeWinnerAverageRoll();
             AnalyzeLoserAverageRoll();
+            AnalyzeTotalBestProperties();
+            AnalyzeWinnerBestProperties();
+            AnalyzeLoserBestProperties();
         }
 
         private void StartAnalysisHandler()
@@ -68,17 +71,17 @@ namespace MonopolyAnalysis
 
         private void AnalyzeWinnerBestProperties()
         {
-
+            DataAccess.GetWinnerPropertyRevenue(2);
         }
 
         private void AnalyzeLoserBestProperties()
         {
-
+            DataAccess.GetLoserPropertyRevenue(2);
         }
 
         private void AnalyzeTotalBestProperties()
         {
-
+            DataAccess.GetAllPropertyRevenue(2);
         }
 
         private void NavigateToSimulaitonPage(object sender, RoutedEventArgs e)
