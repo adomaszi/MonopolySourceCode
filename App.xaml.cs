@@ -33,21 +33,15 @@ namespace MonopolyAnalysis
             this.Suspending += OnSuspending;
             
             DataAccess.InitializeDatabase();
-            
-            DataAccess.AddFieldGroupColor("Brown");
-            DataAccess.AddFieldGroupColor("LightBlue");
-            DataAccess.AddFieldGroupColor("Pink");
-            DataAccess.AddFieldGroupColor("Orange");
-            DataAccess.AddFieldGroupColor("Red");
-            DataAccess.AddFieldGroupColor("Yellow");
-            DataAccess.AddFieldGroupColor("Green");
-            DataAccess.AddFieldGroupColor("DarkBlue");
 
+            DataAccess.AddBoardData();
+
+            /*
             List<String> Strings = DataAccess.GetData();
             foreach(String String in Strings)
             {
                 Debug.WriteLine(String);
-            }
+            }*/
             
         }
 
