@@ -90,12 +90,19 @@ namespace Monopoly
                 new Property(this, "Pentonville Road", PropertyFamily.Red, 220m, 150m, 110, new decimal[] { 18m, 90m, 250m, 700m, 875m, 1050m }),
                 new Property(this, "Pall Mall", PropertyFamily.Red, 240m, 150m, 120m, new decimal[] { 20m, 100m, 300m, 750m, 925m, 1100m }),
                 new StationSpace("Kings Cross Station"),
-                new Property(this, "Bond Street", PropertyFamily.Yellow, 240m, 150m, 120m, new decimal[] { 20m, 100m, 300m, 750m, 925m, 1100m }),
+                new Property(this, "Bond Street", PropertyFamily.Yellow, 150m, 150m, 130m, new decimal[] { 22m, 110m, 330m, 800m, 975m, 1150m }),
+                new Property(this, "Strand", PropertyFamily.Yellow, 150m, 150m, 130m, new decimal[] { 22m, 110m, 330m, 800m, 975m, 1150m }),
+                new Utility("Water Company"),
+                new Property(this, "Regent Street", PropertyFamily.Yellow, 150m, 150m, 140m, new decimal[] { 24m, 120m, 360m, 850m, 1025m, 1200m }),
 
                 // fourth row
-                //...
                 new GotoJailSpace(),
-                //...
+                new Property(this, "Euston Road", PropertyFamily.Green, 200m, 200m, 150m, new decimal[] { 26m, 130m, 390m, 900m, 1100m, 1275m }),
+                new Property(this, "Picadilly", PropertyFamily.Green, 200m, 200m, 150m, new decimal[] { 26m, 130m, 390m, 900m, 1100m, 1275m }),
+                new CommunityChestSpace(),
+                new Property(this, "Oxford Street", PropertyFamily.Green, 200m, 200m, 160m, new decimal[] { 28m, 150m, 450m, 1000m, 1200m, 1400m }),
+                new StationSpace("Liverpool Station"),
+                new ChanceSpace(),
                 new Property(this, "Park Lane", PropertyFamily.DarkBlue, 350m, 200m, 175m, new decimal[] { 35m, 175m, 500m, 1100m, 1300m, 1500m }),
                 new TaxSpace("Super Tax", 400m),
                 new Property(this, "Mayfair", PropertyFamily.DarkBlue, 400m, 200m, 200m, new decimal[] { 50m, 200m, 600m, 1400m, 1700m, 2000m }),
