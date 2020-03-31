@@ -33,7 +33,9 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             Debug.Print("About init");
+            // Remove them from here and put them into the single/multi threaded analysis
             AnalyzeWinnerAverageRoll();
+            AnalyzeLoserAverageRoll();
         }
 
         private void StartAnalysisHandler()
@@ -59,6 +61,8 @@ namespace MonopolyAnalysis
 
         private void AnalyzeLoserAverageRoll()
         {
+            // DataAccess.GetRollsOfLoser returns a List<int> with all rolls that losers made. To get the average, the calculation needs to be done here with plinq
+            DataAccess.GetRollsOfLosers(4);
 
         }
 

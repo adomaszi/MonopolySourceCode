@@ -423,7 +423,7 @@ namespace MonopolyAnalysis
 
                     SqliteCommand selectDiceRoll = new SqliteCommand();
                     SqliteCommand selectWinnerIDs = new SqliteCommand(
-                        $"Select PlayerID From Player Where GameID = {id} GROUP BY PlayerID Having Max(FinalTotalMoney)");
+                        $"Select PlayerID From Player Where GameID = {id} ORDER BY FinalTotalMoney DESC LIMIT 1");
                     selectWinnerIDs.Connection = db;
                     
                     try
@@ -464,6 +464,65 @@ namespace MonopolyAnalysis
             }
             Debug.WriteLine(allWinnerRolls.Count);
             return allWinnerRolls;
+        }
+
+        public static List<int> GetRollsOfLosers(int numberPlayers)
+        {
+            List<int> allLoserRolls = new List<int>();
+            List<int> allGames = GetAllGameIDs(numberPlayers);
+            foreach (int id in allGames)
+            {
+                int loserID = -1;
+                string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+
+                using (SqliteConnection db =
+                  new SqliteConnection($"Filename={dbpath}"))
+                {
+                    db.Open();
+
+                    SqliteCommand selectDiceRoll = new SqliteCommand();
+                    SqliteCommand selectLoserIDs = new SqliteCommand(
+                        $"Select PlayerID From Player Where GameID = {id} ORDER BY FinalTotalMoney ASC LIMIT 1");
+                    selectLoserIDs.Connection = db;
+
+                    try
+                    {
+                        using (SqliteDataReader reader = selectLoserIDs.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                loserID = reader.GetInt32(0);
+                            }
+                        }
+
+                        selectDiceRoll = new SqliteCommand(
+                                      $"Select DiceRoll From GameMove Where PlayerID = {loserID}");
+                        selectDiceRoll.Connection = db;
+
+                        using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                allLoserRolls.Add(reader.GetInt32(0));
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectLoserIDs.CommandText);
+                        Debug.WriteLine("Query Executed: " + selectDiceRoll.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        db.Close();
+                    }
+                }
+            }
+            Debug.WriteLine(allLoserRolls.Count);
+            return allLoserRolls;
         }
 
         private static List<int> GetAllGameIDs(int numberPlayers)
