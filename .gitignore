@@ -42,3 +42,6 @@ obj/x86/Debug/SimulaitonPage.g.i.cs
 obj/x86/Debug/SimulaitonPage.xbf
 obj/x86/Debug/XamlSaveStateFile.xml
 obj/x86/Debug/XamlSaveStateFile.xml
+obj/**
+bin/**
+.vs/**
