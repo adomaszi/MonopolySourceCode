@@ -9,10 +9,10 @@ namespace MonopolyAnalysis
 {
     public class Move : EventArgs
     {
-        private Player _player { get; }
-        private BoardSpace _property { get; }
-        private decimal _moneyPaid { get; set; }
-        private int _numberRolled { get; }
+        public Player _player { get; }
+        public BoardSpace _property { get; }
+        public decimal _moneyPaid { get; set; }
+        public int _numberRolled { get; }
 
         public Move(Player player, BoardSpace property, decimal moneyPaid, int numberRolled)
         {

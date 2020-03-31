@@ -31,9 +31,9 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            
-            DataAccess.InitializeDatabase();
 
+            DataAccess.DropAllTables();
+            DataAccess.InitializeDatabase();
             DataAccess.AddBoardData();
 
             /*

@@ -23,9 +23,9 @@ namespace MonopolyAnalysis
                 db.Open();
 
                 String gameMoveTable = "CREATE TABLE IF NOT EXISTS GameMove ( " +
-                      "GameMoveID int PRIMARY KEY," +
+                      "GameMoveID INTEGER PRIMARY KEY," +
                       "PlayerID int, " +
-                      "PropertyLandedOn int" +
+                      "PropertyLandedOn int," +
                       "DiceRoll int, " +
                       "GameID int, " +
                       "MoneySpend double, " +
@@ -47,7 +47,7 @@ namespace MonopolyAnalysis
                       ");";
 
                 String playerTable = "CREATE TABLE IF NOT EXISTS Player ( " +
-                      "PlayerID int PRIMARY KEY, " +
+                      "PlayerID INTEGER PRIMARY KEY, " +
                       "GameID int, " +
                       "FinalTotalMoney decimal, " +
 
@@ -58,12 +58,13 @@ namespace MonopolyAnalysis
                       "); ";
 
                 String gameTable = "CREATE TABLE IF NOT EXISTS Game ( " +
-                      "GameID INTEGER PRIMARY KEY " +
+                      "GameID INTEGER PRIMARY KEY," +
+                      "Name Text " +
                       ") ";
                
 
                 String playerGameFieldsTable = "CREATE TABLE IF NOT EXISTS PlayerProperties ( " +
-                      "PlayerPropertyID int PRIMARY KEY, " +
+                      "PlayerPropertyID INTEGER PRIMARY KEY, " +
                       "PropertyID int, " +
                       "PlayerID int, " +
 
@@ -79,7 +80,7 @@ namespace MonopolyAnalysis
                       "); ";
 
                 String gameFieldTable = "CREATE TABLE IF NOT EXISTS Property ( " +
-                      "PropertyID int PRIMARY KEY, " +
+                      "PropertyID INTEGER PRIMARY KEY, " +
                       "PropertyName text UNIQUE, " +
                       "PropertyGroupID int, " +
 
@@ -90,7 +91,7 @@ namespace MonopolyAnalysis
                       "); ";
 
                 String fieldGroupTable = "CREATE TABLE IF NOT EXISTS PropertyGroup ( " +
-                      "PropertyGroupID int PRIMARY KEY, " +
+                      "PropertyGroupID INTEGER PRIMARY KEY, " +
                       "Color text UNIQUE" +
                       "); ";
 
@@ -284,6 +285,7 @@ namespace MonopolyAnalysis
                 db.Open();
 
                 SqliteCommand command = new SqliteCommand();
+                SqliteCommand selectCommand = new SqliteCommand();
                 command.Connection = db;
                 SqliteTransaction transaction = db.BeginTransaction();
                 command.Transaction = transaction;
@@ -292,12 +294,11 @@ namespace MonopolyAnalysis
 
                 try
                 {
-                    command.CommandText = "Insert Into Game";
+                    command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
                     command.ExecuteNonQuery();
-                    SqliteCommand selectGameIDCommand = new SqliteCommand
-                    ("SELECT TOP 1 GameID from Game BY GameID DESC", db);
-                    selectGameIDCommand.Transaction = transaction;
-                    SqliteDataReader gameResult = selectGameIDCommand.ExecuteReader();
+                    selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", db);
+                    selectCommand.Transaction = transaction;
+                    SqliteDataReader gameResult = selectCommand.ExecuteReader();
                     int gameID = 0;
 
                     while (gameResult.Read())
@@ -305,32 +306,53 @@ namespace MonopolyAnalysis
                         gameID = gameResult.GetInt16(0);
                     }
 
+                    gameResult.Close();
+
                     for (int i = 0; i < board.players.Count; i++)
                     {
-                        command.CommandText = "Insert Into Player (FinalTotalMoney, GameID) VALUES (@Money, @GameID)";
-                        command.Parameters.AddWithValue("@Money", board.players[i].Money);
-                        command.Parameters.AddWithValue("@GameID", gameID);
+                        command.CommandText = $"Insert Into Player (FinalTotalMoney, GameID) VALUES ({board.players[i].Money}, {gameID})";
                         command.ExecuteNonQuery();
-                        SqliteCommand selectPlayerIDCommand = new SqliteCommand
-                        ("SELECT TOP 1 PlayerID from Player BY PlayerID DESC", db);
-                        selectGameIDCommand.Transaction = transaction;
-                        SqliteDataReader playerResult = selectGameIDCommand.ExecuteReader();
-                        while (playerResult.Read())
+
+                        selectCommand.CommandText = "SELECT PlayerID FROM Player ORDER BY PlayerID DESC LIMIT 1";
+                        SqliteDataReader playersResult = selectCommand.ExecuteReader();
+
+                        while (playersResult.Read())
                         {
-                            players[i] = playerResult.GetInt16(0);
+                            players[i] = playersResult.GetInt16(0);
                         }
-                        foreach(Property property in board.players[i].OwnedProperties)
+
+                        playersResult.Close();
+
+                        foreach (BoardSpace space in board.players[i].OwnedProperties)
                         {
-                            command.CommandText = "Insert Into PlayerProperties (PlayerID, PropertyID) VALUES (@PlayerID, Select PropertyID FROM Property WHERE PropertyName Like @PropertyName)";
-                            command.Parameters.AddWithValue("@PlayerID", players[i]);
-                            command.Parameters.AddWithValue("@PropertyName", property.Name);
+                            if(space is Property)
+                            {
+                                command.CommandText = $"Insert Into PlayerProperties (PlayerID, PropertyID) SELECT {players[i]}, PropertyID FROM Property WHERE PropertyName Like '{space.Name}'";
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
+
+                    foreach (Move move in moves)
+                    {
+                        int playerIndex = board.players.FindIndex(u => u == move._player);
+                        if (playerIndex > -1 && move._property is Property)
+                        {
+                            command.CommandText = $"INSERT INTO GameMove (PlayerID, PropertyLandedOn, DiceRoll, GameID, MoneySpend) SELECT {players[playerIndex]}, PropertyID, {move._numberRolled}, {gameID}, {move._moneyPaid} FROM Property WHERE PropertyName LIKE '{move._property.Name}'";
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    transaction.Commit();
 
                 }
                 catch (Exception e)
                 {
                     transaction.Rollback();
+                    Debug.WriteLine("Inner Exception: " + e.Message);
+                    Debug.WriteLine("");
+                    Debug.WriteLine("Query Executed: " + command.CommandText);
+                    Debug.WriteLine("");
                 }
                 finally
                 {
