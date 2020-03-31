@@ -33,6 +33,7 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             Debug.Print("About init");
+            AnalyzeWinnerAverageRoll();
         }
 
         private void StartAnalysisHandler()
@@ -52,7 +53,7 @@ namespace MonopolyAnalysis
 
         private void AnalyzeWinnerAverageRoll()
         {
-
+            DataAccess.GetRollsOfWinners(4);
         }
 
         private void AnalyzeLoserAverageRoll()
