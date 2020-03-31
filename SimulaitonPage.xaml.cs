@@ -16,6 +16,7 @@ using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.System.Threading;
 using System.Threading;
+using Monopoly;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -28,7 +29,14 @@ namespace MonopolyAnalysis
     {
         private int _playerAmount = 2;
         private int _gameAmount = 1;
+        private int _gameCount = 0;
         private bool isMultiThreadedExecution = false;
+        private List<Move> _moves = new List<Move>();
+        private readonly object _movesLock = new object();
+        private static Mutex _asyncSimulationCounterMutex = new Mutex();
+        int _asyncSimulationCounter = 1;
+        double processorCountValue;
+        
         public SimulationPage()
         {
             this.InitializeComponent();
@@ -75,29 +83,28 @@ namespace MonopolyAnalysis
         {
             isMultiThreadedExecution = Convert.ToBoolean(this.multiThreadedExecution.IsChecked);
         }
-        int i;
 
-
-        private void startSimulation(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void StartSimulation(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
             if (isMultiThreadedExecution)
             {
-                asyncSimulations();
+                AsyncSimulations();
             }
             else
             {
-                syncSimulations();
+                SyncSimulations();
             }
         }
 
-        private void syncSimulations()
+        private void SyncSimulations()
         {
+            UpdateProgress("Simulations started");
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            for (i = 1; i <= _gameAmount; i++)
+            for (int i = 1; i <= _gameAmount; i++)
             {
                 DataCollector dataCollector = new DataCollector(_playerAmount);
-                dataCollector.SimulationComplete += saveMoves;
+                dataCollector.SimulationComplete += SaveMoves;
                 dataCollector.Start();
 
             }
@@ -106,65 +113,95 @@ namespace MonopolyAnalysis
             TimeSpan ts = stopWatch.Elapsed;
 
             // Format and display the TimeSpan value.
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
-            simulationTime.Text = elapsedTime;
+            UpdateTimer(ts);
+            Debug.Print(_moves.Count.ToString());
+            UpdateProgress("Simulations finished");
         }
-        int counter = 1;
-        Stopwatch stopWatch;
-        TimeSpan ts;
-        double processorCountValue;
-        private static Mutex _asyncSimulationCounterMutex = new Mutex();
-        async private void done()
+        
+        private bool IsDone()
         {
-            System.Diagnostics.Debug.WriteLine("Done" + counter);
-            if (counter == processorCountValue)
+            if (_asyncSimulationCounter != processorCountValue)
             {
-                stopWatch.Stop();
-                // Get the elapsed time as a TimeSpan value.
-                ts = stopWatch.Elapsed;
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                    ts.Hours, ts.Minutes, ts.Seconds,
-                    ts.Milliseconds / 10);
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    simulationTime.Text = elapsedTime;
-                });
+                _asyncSimulationCounterMutex.WaitOne();
+                _asyncSimulationCounter++;
+                _asyncSimulationCounterMutex.ReleaseMutex();
+                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, processorCountValue);
+                UpdateProgress(progressString);
+                return false;
+            } else
+            {
+                return true;
             }
-            _asyncSimulationCounterMutex.WaitOne();
-            counter++;
-            _asyncSimulationCounterMutex.ReleaseMutex();
         }
-        private void asyncSimulations()
+
+        private void AsyncSimulations()
         {
-            counter = 1;
-            stopWatch = new Stopwatch();
+            UpdateProgress("Simulations started");
+            _asyncSimulationCounter = 1;
+            Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             processorCountValue = processorCount.Value;
             int split = _gameAmount / (int)processorCountValue;
 
-            for (i = 1; i <= processorCountValue; i++)
+            for (int i = 1; i <= processorCountValue; i++)
             {
-                _ = Windows.System.Threading.ThreadPool.RunAsync(
+                 _ = Windows.System.Threading.ThreadPool.RunAsync(
                 (workItem) =>
                 {
                     for (int f = 0; f < split; f++)
                     {
                         DataCollector dataCollector = new DataCollector(_playerAmount);
-                        dataCollector.SimulationComplete += saveMoves;
+                        dataCollector.SimulationComplete += SaveMoves;
                         dataCollector.Start();
-
                     }
-                    done();
+
+                    if (IsDone())
+                    {
+                        stopWatch.Stop();
+                        // Get the elapsed time as a TimeSpan value.
+                        TimeSpan ts = stopWatch.Elapsed;
+                        UpdateTimer(ts);
+                        
+                    }
                 }, WorkItemPriority.Low, WorkItemOptions.TimeSliced);
             }
-
-
         }
 
-        private void saveMoves(object source, List<Move> moves, int playerAmount)
+        async private void UpdateTimer(TimeSpan ts)
         {
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                            ts.Hours, ts.Minutes, ts.Seconds,
+                            ts.Milliseconds / 10);
+ 
+            // Update the timer
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                simulationTime.Text = elapsedTime;
+            });
+        }
+
+        async private void UpdateProgress(string text)
+        {
+            // Update the progress
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                simulationProgress.Text = text;
+            });
+        }
+
+        
+        private void SaveMoves(object source, List<Move> moves, int playerAmount, Board board)
+        {
+            lock (_movesLock)
+            {
+                foreach (Move move in moves)
+                {
+                    this._moves.Add(move);
+                }
+                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, _gameAmount);
+                UpdateProgress(progressString);
+                Debug.WriteLine(this._moves.Count);
+            }
         }
 
         private void ProcessorCount_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -176,6 +213,11 @@ namespace MonopolyAnalysis
                 processorCount.Value = processorCountValue;
             }
             processorCountLabel.Text = "Amount of virtual processors to split the tasks: " + processorCountValue;
+        }
+
+        private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+        {
+
         }
     }
 }

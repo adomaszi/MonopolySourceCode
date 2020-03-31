@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Diagnostics;
 namespace Monopoly
 {
     public class BoardSpace
@@ -18,6 +18,17 @@ namespace Monopoly
 
         public virtual void OnPlayerLanded(Player player, int numberRolled)
         {
+            // *Added code*
+            // Get type of board space
+            Type type = this.GetType();
+            bool isBuyable = type == typeof(Property) || type == typeof(Utility) || type == typeof(StationSpace);            
+            if (!isBuyable)
+            {
+                // use a different Move constructor for registering the Move
+                player.Board.dataCollector.registerMove(new Move(player, numberRolled));
+            }
+            // *Added code*
+
             player.Interacter.ShowPlayerLanded(player, this);
         }
     }
@@ -77,7 +88,9 @@ namespace Monopoly
             {
                 var rent = CalculateRent(player);
                 player.Charge(rent);
+                // *Added code*
                 player.Board.dataCollector.registerMove(new Move(player, this, rent, numberRolled));
+                // *Added code*
                 Owner.Gain(rent);
                 player.Interacter.ShowPlayerPaidRent(player, Owner, this, rent);
             }
