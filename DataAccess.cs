@@ -360,7 +360,51 @@ namespace MonopolyAnalysis
                 }
             }
         }
-    }
 
-    
+        public static int GetNumberOfStoredGames(int numberPlayers)
+        {
+            int count = 0;
+            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+            using (SqliteConnection db =
+              new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+
+                SqliteCommand selectAmountCommand = new SqliteCommand();
+                selectAmountCommand.Connection = db;
+
+                try
+                {
+                    selectAmountCommand.CommandText = "Select count(total) " +
+                                                      "FROM " +
+                                                          "(Select Count(PlayerID) as playeramount, COUNT(GameID) as total FROM Player Group By GameID) " +
+                                                      "Group by playeramount " +
+                                                     $"having playeramount = { numberPlayers}";
+
+                    using (SqliteDataReader reader = selectAmountCommand.ExecuteReader())
+                    {
+
+                        int countGamesIndex = reader.GetOrdinal("count(total)");
+
+                        while (reader.Read())
+                        {
+                            count = reader.GetInt32(countGamesIndex);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Inner Exception: " + e.Message);
+                    Debug.WriteLine("");
+                    Debug.WriteLine("Query Executed: " + selectAmountCommand.CommandText);
+                    Debug.WriteLine("");
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            return count;
+        }
+    }
 }

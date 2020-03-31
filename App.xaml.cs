@@ -31,17 +31,9 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-
-            DataAccess.DropAllTables();
+            
             DataAccess.InitializeDatabase();
             DataAccess.AddBoardData();
-
-            /*
-            List<String> Strings = DataAccess.GetData();
-            foreach(String String in Strings)
-            {
-                Debug.WriteLine(String);
-            }*/
             
         }
 
