@@ -1,0 +1,26 @@
+﻿<Page
+    x:Class="MonopolyAnalysis.AnalysisPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MonopolyAnalysis"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="1"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Background="#FF726DA8">
+        
+        <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="49*"/>
+                <ColumnDefinition Width="201*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:ConnectionId='3'                                  Content="Simulation" Width="80" Margin="10,0,0,0" />
+            <Button Content="Analysis" Width="80" Margin="100,0,0,0" />
+            <Button x:ConnectionId='4'                             Content="About" Width="80" Margin="190,0,0,0"/>
+        </Grid>
+        <TextBlock x:ConnectionId='2' x:Name="title" Text="Analysis" Margin="10,65,-10,-65" />
+    </Grid>
+</Page>
+
