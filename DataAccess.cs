@@ -406,5 +406,103 @@ namespace MonopolyAnalysis
             }
             return count;
         }
+
+        public static List<int> GetRollsOfWinners(int numberPlayers)
+        {
+            List<int> allWinnerRolls = new List<int>();
+            List<int> allGames = GetAllGameIDs(numberPlayers);
+            foreach(int id in allGames)
+            {
+                int winnerID = -1;
+                string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+
+                using (SqliteConnection db =
+                  new SqliteConnection($"Filename={dbpath}"))
+                {
+                    db.Open();
+
+                    SqliteCommand selectDiceRoll = new SqliteCommand();
+                    SqliteCommand selectWinnerIDs = new SqliteCommand(
+                        $"Select PlayerID From Player Where GameID = {id} GROUP BY PlayerID Having Max(FinalTotalMoney)");
+                    selectWinnerIDs.Connection = db;
+                    
+                    try
+                    {
+                        using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                winnerID = reader.GetInt32(0);
+                            }
+                        }
+
+                        selectDiceRoll = new SqliteCommand(
+                                      $"Select DiceRoll From GameMove Where PlayerID = {winnerID}");
+                        selectDiceRoll.Connection = db;
+
+                        using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                allWinnerRolls.Add(reader.GetInt32(0));
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
+                        Debug.WriteLine("Query Executed: " + selectDiceRoll.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        db.Close();
+                    }
+                }
+            }
+            Debug.WriteLine(allWinnerRolls.Count);
+            return allWinnerRolls;
+        }
+
+        private static List<int> GetAllGameIDs(int numberPlayers)
+        {
+            List<int> allGameIDs = new List<int>();
+            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+            using (SqliteConnection db =
+              new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+                SqliteCommand command = new SqliteCommand(
+                                    "Select GameID FROM Player Group By GameID " +
+                                   $"having Count(PlayerID) = { numberPlayers}");
+                command.Connection = db;
+
+                try
+                {
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            allGameIDs.Add(reader.GetInt32(0));
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Inner Exception: " + e.Message);
+                    Debug.WriteLine("");
+                    Debug.WriteLine("Query Executed: " + command.CommandText);
+                    Debug.WriteLine("");
+                }
+                finally
+                {
+                    db.Close();
+                }
+
+            }
+            return allGameIDs;
+        }
     }
 }
