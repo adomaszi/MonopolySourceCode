@@ -40,6 +40,8 @@ namespace MonopolyAnalysis
         public SimulationPage()
         {
             this.InitializeComponent();
+
+            UpdateRecordCount();
         }
 
         private void NavigateToAnalysisPage(object sender, RoutedEventArgs e)
