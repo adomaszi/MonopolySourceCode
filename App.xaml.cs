@@ -31,23 +31,17 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            
-            DataAccess.InitializeDatabase();
-            
-            DataAccess.AddFieldGroupColor("Brown");
-            DataAccess.AddFieldGroupColor("LightBlue");
-            DataAccess.AddFieldGroupColor("Pink");
-            DataAccess.AddFieldGroupColor("Orange");
-            DataAccess.AddFieldGroupColor("Red");
-            DataAccess.AddFieldGroupColor("Yellow");
-            DataAccess.AddFieldGroupColor("Green");
-            DataAccess.AddFieldGroupColor("DarkBlue");
 
+            DataAccess.DropAllTables();
+            DataAccess.InitializeDatabase();
+            DataAccess.AddBoardData();
+
+            /*
             List<String> Strings = DataAccess.GetData();
             foreach(String String in Strings)
             {
                 Debug.WriteLine(String);
-            }
+            }*/
             
         }
 

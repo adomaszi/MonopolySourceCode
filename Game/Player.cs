@@ -23,7 +23,7 @@ namespace Monopoly
         public int LastSpacesMoved = 0;
         public int NumGetOutOfJailFreeCards = 0;
         public string Name;
-        private List<BoardSpace> ownedProperties = new List<BoardSpace>();
+        private List<BoardSpace> ownedProperties { get; } = new List<BoardSpace>();
         public int OwnedStations => ownedProperties.Where(p => p is StationSpace).Count();
         public bool InJail = false;
         public bool RolledDouble = false;

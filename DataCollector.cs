@@ -37,6 +37,7 @@ namespace MonopolyAnalysis
             if (SimulationComplete != null)
             {
                 SimulationComplete(this, _moves, _playerAmount, _board);
+                DataAccess.SaveGameData(_moves, _playerAmount, _board);
             }
         }
        

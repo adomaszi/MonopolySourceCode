@@ -7,6 +7,7 @@ using Microsoft.Data.Sqlite;
 using Windows.Storage;
 using System.IO;
 using System.Diagnostics;
+using Monopoly;
 
 namespace MonopolyAnalysis
 {
@@ -22,9 +23,10 @@ namespace MonopolyAnalysis
                 db.Open();
 
                 String gameMoveTable = "CREATE TABLE IF NOT EXISTS GameMove ( " +
-                      "GameMoveID int PRIMARY KEY," +
+                      "GameMoveID INTEGER PRIMARY KEY," +
                       "PlayerID int, " +
-                      "GameFieldLandedOnDiceRoll int, " +
+                      "PropertyLandedOn int," +
+                      "DiceRoll int, " +
                       "GameID int, " +
                       "MoneySpend double, " +
 
@@ -33,8 +35,8 @@ namespace MonopolyAnalysis
                       "ON UPDATE CASCADE " +
                       "ON DELETE CASCADE, " +
 
-                      "CONSTRAINT FK_GameFieldLandedOnDiceRoll FOREIGN KEY(GameFieldLandedOnDiceRoll) " +
-                      "REFERENCES GameField(GameFieldID) " +
+                      "CONSTRAINT FK_GameFieldLandedOn FOREIGN KEY(PropertyLandedOn) " +
+                      "REFERENCES Property(PropertyID) " +
                       "ON UPDATE CASCADE " +
                       "ON DELETE CASCADE, " +
 
@@ -45,7 +47,7 @@ namespace MonopolyAnalysis
                       ");";
 
                 String playerTable = "CREATE TABLE IF NOT EXISTS Player ( " +
-                      "PlayerID int PRIMARY KEY, " +
+                      "PlayerID INTEGER PRIMARY KEY, " +
                       "GameID int, " +
                       "FinalTotalMoney decimal, " +
 
@@ -56,17 +58,18 @@ namespace MonopolyAnalysis
                       "); ";
 
                 String gameTable = "CREATE TABLE IF NOT EXISTS Game ( " +
-                      "GameID INTEGER PRIMARY KEY " +
+                      "GameID INTEGER PRIMARY KEY," +
+                      "Name Text " +
                       ") ";
                
 
-                String playerGameFieldsTable = "CREATE TABLE IF NOT EXISTS PlayerGameFields ( " +
-                      "PlayerGameFieldsID int PRIMARY KEY, " +
-                      "GameFieldID int, " +
-                      "PlayerID int, " + 
+                String playerGameFieldsTable = "CREATE TABLE IF NOT EXISTS PlayerProperties ( " +
+                      "PlayerPropertyID INTEGER PRIMARY KEY, " +
+                      "PropertyID int, " +
+                      "PlayerID int, " +
 
-                      "CONSTRAINT FK_GameFieldID FOREIGN KEY(GameFieldID) " +
-                      "REFERENCES GameField(GameFieldID) " +
+                      "CONSTRAINT FK_PropertyID FOREIGN KEY(PropertyID) " +
+                      "REFERENCES Property(PropertyID) " +
                       "ON UPDATE CASCADE " +
                       "ON DELETE CASCADE, " +
 
@@ -76,29 +79,21 @@ namespace MonopolyAnalysis
                       "ON DELETE CASCADE " + 
                       "); ";
 
-                String gameFieldTable = "CREATE TABLE IF NOT EXISTS GameField ( " +
-                      "GameFieldID int PRIMARY KEY, " +
-                      "FieldName text, " +
-                      "IsJailed int, " +
-                      "FieldGroupID int, " +
-                      "PlayerID int, " +
+                String gameFieldTable = "CREATE TABLE IF NOT EXISTS Property ( " +
+                      "PropertyID INTEGER PRIMARY KEY, " +
+                      "PropertyName text UNIQUE, " +
+                      "PropertyGroupID int, " +
 
-                      "CONSTRAINT FK_PlayerID FOREIGN KEY(PlayerID) " +
-                      "REFERENCES Player(PlayerID) " +
-                      "ON UPDATE CASCADE " +
-                      "ON DELETE CASCADE, " +
-
-                      "CONSTRAINT FK_FieldGroupID FOREIGN KEY(FieldGroupID) " +
-                      "REFERENCES FieldGroup(FieldGroupID) " +
+                      "CONSTRAINT FK_FieldGroupID FOREIGN KEY(PropertyGroupID) " +
+                      "REFERENCES PropertyGroup(PropertyGroupID) " +
                       "ON UPDATE CASCADE " +
                       "ON DELETE CASCADE " +
                       "); ";
 
-                String fieldGroupTable = "CREATE TABLE IF NOT EXISTS FieldGroup ( " +
-                      "FieldGroupID int PRIMARY KEY, " +
+                String fieldGroupTable = "CREATE TABLE IF NOT EXISTS PropertyGroup ( " +
+                      "PropertyGroupID INTEGER PRIMARY KEY, " +
                       "Color text UNIQUE" +
                       "); ";
-
 
                 List<String> commandStrings = new List<string>
                 {
@@ -109,10 +104,9 @@ namespace MonopolyAnalysis
                     playerGameFieldsTable,
                     gameMoveTable
                 };
-                
+
                 foreach (string tableCommand in commandStrings)
                 {
-                    Debug.WriteLine(tableCommand);
                     SqliteCommand createTable = new SqliteCommand(tableCommand, db);
 
                     createTable.ExecuteReader();
@@ -120,7 +114,78 @@ namespace MonopolyAnalysis
             }
         }
 
-        public static void AddFieldGroupColor(string color)
+        public static void DropAllTables()
+        {
+            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+            using (SqliteConnection db =
+              new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+
+                List<String> commandStrings = new List<string>
+                {
+                    "DROP TABLE IF EXISTS GameMove;",
+                    "DROP TABLE IF EXISTS PlayerProperties;",
+                    "DROP TABLE IF EXISTS Property;",
+                    "DROP TABLE IF EXISTS PropertyGroup;",
+                    "DROP TABLE IF EXISTS Player;",
+                    "DROP TABLE IF EXISTS Game;"
+                };
+
+                foreach (string tableCommand in commandStrings)
+                {
+                    SqliteCommand createTable = new SqliteCommand(tableCommand, db);
+
+                    createTable.ExecuteReader();
+                }
+
+                db.Close();
+            }
+        }
+
+        public static void AddBoardData()
+        {
+            DataAccess.AddFieldGroupColor("Brown");
+            DataAccess.AddFieldGroupColor("LightBlue");
+            DataAccess.AddFieldGroupColor("Pink");
+            DataAccess.AddFieldGroupColor("Orange");
+            DataAccess.AddFieldGroupColor("Red");
+            DataAccess.AddFieldGroupColor("Yellow");
+            DataAccess.AddFieldGroupColor("Green");
+            DataAccess.AddFieldGroupColor("DarkBlue");
+
+            DataAccess.AddField("Vine Street", "Brown");
+            DataAccess.AddField("Coventry Street", "Brown");
+
+            DataAccess.AddField("Leicester Square", "LightBlue");
+            DataAccess.AddField("Bow Street", "LightBlue");
+            DataAccess.AddField("Whitechapel Road", "LightBlue");
+
+            DataAccess.AddField("The Angel Islington", "Pink");
+            DataAccess.AddField("Trafalgar Square", "Pink");
+            DataAccess.AddField("Northumrld Avenue", "Pink");
+
+            DataAccess.AddField("M'Borgough Street", "Orange");
+            DataAccess.AddField("Fleet Street", "Orange");
+            DataAccess.AddField("Old Knet Road", "Orange");
+
+            DataAccess.AddField("Whitehall", "Red");
+            DataAccess.AddField("Pentonville Road", "Red");
+            DataAccess.AddField("Pall Mall", "Red");
+
+            DataAccess.AddField("Bond Street", "Yellow");
+            DataAccess.AddField("Strand", "Yellow");
+            DataAccess.AddField("Regent Street", "Yellow");
+
+            DataAccess.AddField("Euston Road", "Green");
+            DataAccess.AddField("Picadilly", "Green");
+            DataAccess.AddField("Oxford Street", "Green");
+
+            DataAccess.AddField("Park Lane", "DarkBlue");
+            DataAccess.AddField("Mayfair", "DarkBlue");
+        }
+
+        public static void AddFieldGroupColor(String color)
         {
             string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
@@ -130,9 +195,8 @@ namespace MonopolyAnalysis
 
                 SqliteCommand insertCommand = new SqliteCommand();
                 insertCommand.Connection = db;
-
-                // Use parameterized query to prevent SQL injection attacks
-                insertCommand.CommandText = "INSERT INTO FieldGroup VALUES (NULL, @Color);";
+                
+                insertCommand.CommandText = "INSERT INTO PropertyGroup VALUES (NULL, @Color);";
                 insertCommand.Parameters.AddWithValue("@Color", color);
 
                 try
@@ -151,10 +215,42 @@ namespace MonopolyAnalysis
                     db.Close();
                 }
             }
-
         }
 
-        public static List<String> GetData()
+        public static void AddField(String name, String color)
+        {
+            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+            using (SqliteConnection db =
+              new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+
+                SqliteCommand insertCommand = new SqliteCommand();
+                insertCommand.Connection = db;
+
+                insertCommand.CommandText = "INSERT INTO Property (PropertyName, PropertyGroupID) SELECT @Name, PropertyGroupID FROM PropertyGroup WHERE Color LIKE @Color;";
+                insertCommand.Parameters.AddWithValue("@Name", name);
+                insertCommand.Parameters.AddWithValue("@Color", color);
+
+                try
+                {
+                    insertCommand.ExecuteReader();
+                }
+                catch (SqliteException ex)
+                {
+                    Debug.WriteLine("Inner Exception: " + ex.Message);
+                    Debug.WriteLine("");
+                    Debug.WriteLine("Query Executed: " + insertCommand.CommandText);
+                    Debug.WriteLine("");
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+        }
+
+        public static List<String> GetPropertyGroups()
         {
             List<String> entries = new List<string>();
 
@@ -178,6 +274,91 @@ namespace MonopolyAnalysis
             }
 
             return entries;
+        }
+
+        public static void SaveGameData(List<Move> moves, int playerAmount, Board board)
+        {
+            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+            using (SqliteConnection db =
+               new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+
+                SqliteCommand command = new SqliteCommand();
+                SqliteCommand selectCommand = new SqliteCommand();
+                command.Connection = db;
+                SqliteTransaction transaction = db.BeginTransaction();
+                command.Transaction = transaction;
+
+                int[] players = new int[playerAmount];
+
+                try
+                {
+                    command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
+                    command.ExecuteNonQuery();
+                    selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", db);
+                    selectCommand.Transaction = transaction;
+                    SqliteDataReader gameResult = selectCommand.ExecuteReader();
+                    int gameID = 0;
+
+                    while (gameResult.Read())
+                    {
+                        gameID = gameResult.GetInt16(0);
+                    }
+
+                    gameResult.Close();
+
+                    for (int i = 0; i < board.players.Count; i++)
+                    {
+                        command.CommandText = $"Insert Into Player (FinalTotalMoney, GameID) VALUES ({board.players[i].Money}, {gameID})";
+                        command.ExecuteNonQuery();
+
+                        selectCommand.CommandText = "SELECT PlayerID FROM Player ORDER BY PlayerID DESC LIMIT 1";
+                        SqliteDataReader playersResult = selectCommand.ExecuteReader();
+
+                        while (playersResult.Read())
+                        {
+                            players[i] = playersResult.GetInt16(0);
+                        }
+
+                        playersResult.Close();
+
+                        foreach (BoardSpace space in board.players[i].OwnedProperties)
+                        {
+                            if(space is Property)
+                            {
+                                command.CommandText = $"Insert Into PlayerProperties (PlayerID, PropertyID) SELECT {players[i]}, PropertyID FROM Property WHERE PropertyName Like '{space.Name}'";
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    foreach (Move move in moves)
+                    {
+                        int playerIndex = board.players.FindIndex(u => u == move._player);
+                        if (playerIndex > -1 && move._property is Property)
+                        {
+                            command.CommandText = $"INSERT INTO GameMove (PlayerID, PropertyLandedOn, DiceRoll, GameID, MoneySpend) SELECT {players[playerIndex]}, PropertyID, {move._numberRolled}, {gameID}, {move._moneyPaid} FROM Property WHERE PropertyName LIKE '{move._property.Name}'";
+                            command.ExecuteNonQuery();
+                        }
+                    }
+
+                    transaction.Commit();
+
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    Debug.WriteLine("Inner Exception: " + e.Message);
+                    Debug.WriteLine("");
+                    Debug.WriteLine("Query Executed: " + command.CommandText);
+                    Debug.WriteLine("");
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
         }
     }
 

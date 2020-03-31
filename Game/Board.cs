@@ -58,42 +58,51 @@ namespace Monopoly
             {
                 null,
                 // first row
-                new Property(this, "Old Kent Road", PropertyFamily.Brown, 60m, 30m, 50m, new decimal[] { 2m,  10m, 30m, 90m, 160m, 250m}),
+                new Property(this, "Vine Street", PropertyFamily.Brown, 60m, 30m, 50m, new decimal[] { 2m,  10m, 30m, 90m, 160m, 250m}),
                 new CommunityChestSpace(),
-                new Property(this,  "Whitechapel Road", PropertyFamily.Brown, 60m, 30m, 50m, new decimal[] { 4m, 20m,  60m, 180m, 360m, 450m}),
+                new Property(this,  "Coventry Street", PropertyFamily.Brown, 60m, 30m, 50m, new decimal[] { 4m, 20m,  60m, 180m, 360m, 450m}),
                 new TaxSpace("Income Tax", 200m),
-                new StationSpace("Kings Cross Station"),
-                new Property(this, "The Angel Islington", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 6m, 30m, 90m, 270m, 400m, 550m }),
+                new StationSpace("Marylebone Station"),
+                new Property(this, "Leicester Square", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 6m, 30m, 90m, 270m, 400m, 550m }),
                 new ChanceSpace(),
 
-                new Property(this, "Euston Road", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 6m, 30m, 90m, 270m, 400m, 550m }),
+                new Property(this, "Bow Street", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 6m, 30m, 90m, 270m, 400m, 550m }),
 
-                new Property(this, "Pentonville Road", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 8m, 40m, 100m, 300m, 450m, 600m }),
+                new Property(this, "Whitechapel Road", PropertyFamily.LightBlue, 100m, 50m, 50m, new decimal[]{ 8m, 40m, 100m, 300m, 450m, 600m }),
                
                 // second row
                 new JailSpace(),
-                new Property(this, "Pall Mall", PropertyFamily.Pink, 140m, 100m, 70m, new decimal[]{ 10m, 50m, 150m, 450m, 625m, 700m }),
+                new Property(this, "The Angel Islington", PropertyFamily.Pink, 140m, 100m, 70m, new decimal[]{ 10m, 50m, 150m, 450m, 625m, 700m }),
                 new Utility("Electric Company"),
-                new Property(this, "Whitehall", PropertyFamily.Pink, 140m, 100m, 70m, new decimal[] {10m, 50m, 150m, 450m, 625m, 700m}),
+                new Property(this, "Trafalgar Square", PropertyFamily.Pink, 140m, 100m, 70m, new decimal[] {10m, 50m, 150m, 450m, 625m, 700m}),
                 new Property(this, "Northumberland Avenue", PropertyFamily.Pink, 160m, 100m, 80m, new decimal[] { 12m, 60m, 180m, 500m, 700m, 900m }),
-                new StationSpace("Marylebone Station"),
-                new Property(this, "Bow Street", PropertyFamily.Orange, 180m, 100m, 90m, new decimal[] { 14m, 70m, 200m, 550m, 750m, 950m }),
-                new CommunityChestSpace(),
+                new StationSpace("Fenchurech St Station"),
                 new Property(this, "Marlborough Street", PropertyFamily.Orange, 180m, 100m, 90m, new decimal[] { 14m, 70m, 200m, 550m, 750m, 950m }),
+                new CommunityChestSpace(),
+                new Property(this, "Fleet Street", PropertyFamily.Orange, 180m, 100m, 90m, new decimal[] { 14m, 70m, 200m, 550m, 750m, 950m }),
 
-                new Property(this, "Vine Street", PropertyFamily.Orange, 200m, 100m, 100m, new decimal[] { 16m, 80m, 220m, 600m, 800m, 1000m}),
+                new Property(this, "Old Knet Road", PropertyFamily.Orange, 200m, 100m, 100m, new decimal[] { 16m, 80m, 220m, 600m, 800m, 1000m}),
                 
                 
                 // third row
-                new Property(this, "Strand", PropertyFamily.Red, 220m, 150m, 110, new decimal[] { 18m, 90m, 250m, 700m, 875m, 1050m }),
+                new Property(this, "Whitehall", PropertyFamily.Red, 220m, 150m, 110, new decimal[] { 18m, 90m, 250m, 700m, 875m, 1050m }),
                 new ChanceSpace(),
-                new Property(this, "Fleet Street", PropertyFamily.Red, 220m, 150m, 110, new decimal[] { 18m, 90m, 250m, 700m, 875m, 1050m }),
-                new Property(this, "Trafalgar Square", PropertyFamily.Red, 240m, 150m, 120m, new decimal[] { 20m, 100m, 300m, 750m, 925m, 1100m }),
-                
+                new Property(this, "Pentonville Road", PropertyFamily.Red, 220m, 150m, 110, new decimal[] { 18m, 90m, 250m, 700m, 875m, 1050m }),
+                new Property(this, "Pall Mall", PropertyFamily.Red, 240m, 150m, 120m, new decimal[] { 20m, 100m, 300m, 750m, 925m, 1100m }),
+                new StationSpace("Kings Cross Station"),
+                new Property(this, "Bond Street", PropertyFamily.Yellow, 150m, 150m, 130m, new decimal[] { 22m, 110m, 330m, 800m, 975m, 1150m }),
+                new Property(this, "Strand", PropertyFamily.Yellow, 150m, 150m, 130m, new decimal[] { 22m, 110m, 330m, 800m, 975m, 1150m }),
+                new Utility("Water Company"),
+                new Property(this, "Regent Street", PropertyFamily.Yellow, 150m, 150m, 140m, new decimal[] { 24m, 120m, 360m, 850m, 1025m, 1200m }),
+
                 // fourth row
-                //...
                 new GotoJailSpace(),
-                //...
+                new Property(this, "Euston Road", PropertyFamily.Green, 200m, 200m, 150m, new decimal[] { 26m, 130m, 390m, 900m, 1100m, 1275m }),
+                new Property(this, "Picadilly", PropertyFamily.Green, 200m, 200m, 150m, new decimal[] { 26m, 130m, 390m, 900m, 1100m, 1275m }),
+                new CommunityChestSpace(),
+                new Property(this, "Oxford Street", PropertyFamily.Green, 200m, 200m, 160m, new decimal[] { 28m, 150m, 450m, 1000m, 1200m, 1400m }),
+                new StationSpace("Liverpool Station"),
+                new ChanceSpace(),
                 new Property(this, "Park Lane", PropertyFamily.DarkBlue, 350m, 200m, 175m, new decimal[] { 35m, 175m, 500m, 1100m, 1300m, 1500m }),
                 new TaxSpace("Super Tax", 400m),
                 new Property(this, "Mayfair", PropertyFamily.DarkBlue, 400m, 200m, 200m, new decimal[] { 50m, 200m, 600m, 1400m, 1700m, 2000m }),
