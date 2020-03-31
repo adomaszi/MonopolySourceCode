@@ -423,7 +423,7 @@ namespace MonopolyAnalysis
 
                     SqliteCommand selectDiceRoll = new SqliteCommand();
                     SqliteCommand selectWinnerIDs = new SqliteCommand(
-                        $"Select PlayerID From Player Where GameID = {id} GROUP BY PlayerID Having Max(FinalTotalMoney)");
+                        $"Select PlayerID From Player Where GameID = {id} ORDER BY FinalTotalMoney DESC LIMIT 1");
                     selectWinnerIDs.Connection = db;
                     
                     try
@@ -482,7 +482,7 @@ namespace MonopolyAnalysis
 
                     SqliteCommand selectDiceRoll = new SqliteCommand();
                     SqliteCommand selectLoserIDs = new SqliteCommand(
-                        $"Select PlayerID From Player Where GameID = {id} GROUP BY PlayerID Having Min(FinalTotalMoney)");
+                        $"Select PlayerID From Player Where GameID = {id} ORDER BY FinalTotalMoney ASC LIMIT 1");
                     selectLoserIDs.Connection = db;
 
                     try
