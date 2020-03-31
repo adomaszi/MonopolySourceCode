@@ -20,6 +20,6 @@
             <Button Content="Analysis" Width="80" Margin="100,0,0,0" />
             <Button Click="NavigateToAboutPage" Content="About" Width="80" Margin="190,0,0,0"/>
         </Grid>
-        <TextBlock x:Name="title" Text="Analysis" Margin="10,65,-10,-65" Grid.ColumnSpan="2" />
+        <TextBlock x:Name="title" Text="Analysis" Margin="10,65,-10,-65" />
     </Grid>
 </Page>

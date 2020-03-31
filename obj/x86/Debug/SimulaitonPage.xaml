@@ -23,7 +23,7 @@
             <Button x:ConnectionId='14'                                Content="Analysis" Width="80" Margin="100,0,0,0" />
             <Button x:ConnectionId='15'                             Content="About" Width="80" Margin="190,0,0,0"/>
         </Grid>
-        <TextBlock x:ConnectionId='2' x:Name="title" Text="Simulation" Margin="10,47,-10,-47" />
+        <TextBlock x:ConnectionId='2' x:Name="title" Text="Simulation" Margin="10,75,-10,-47" />
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,47,0,0">
             <Grid>
 

@@ -1,1 +1,1 @@
-C:\Users\zitku\source\repos\MonolpolyAnalysis\MonolpolyAnalysis.csproj;x86
+C:\Users\SDR-1\OneDrive\Documents\GitHub\MonopolySourceCode\MonolpolyAnalysis.csproj;x86
