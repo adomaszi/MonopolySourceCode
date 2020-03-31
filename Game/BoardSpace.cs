@@ -152,7 +152,9 @@ namespace Monopoly
         DarkBlue,
         Pink,
         Orange,
-        Red
+        Red,
+        Yellow,
+        Green
     }
 
     public class CommunityChestSpace : BoardSpace

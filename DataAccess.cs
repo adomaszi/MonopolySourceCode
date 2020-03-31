@@ -288,6 +288,8 @@ namespace MonopolyAnalysis
                 SqliteTransaction transaction = db.BeginTransaction();
                 command.Transaction = transaction;
 
+                int[] players = new int[playerAmount];
+
                 try
                 {
                     command.CommandText = "Insert Into Game";
@@ -295,18 +297,36 @@ namespace MonopolyAnalysis
                     SqliteCommand selectGameIDCommand = new SqliteCommand
                     ("SELECT TOP 1 GameID from Game BY GameID DESC", db);
                     selectGameIDCommand.Transaction = transaction;
-                    SqliteDataReader query = selectGameIDCommand.ExecuteReader();
+                    SqliteDataReader gameResult = selectGameIDCommand.ExecuteReader();
+                    int gameID = 0;
 
-                    while (query.Read())
+                    while (gameResult.Read())
                     {
-                        entries.Add(query.GetString(0));
+                        gameID = gameResult.GetInt16(0);
                     }
 
-                    foreach (Player player in board.players)
+                    for (int i = 0; i < board.players.Count; i++)
                     {
-                        command.CommandText = "Insert Into Player (FinalTotalMoney, GameID)"
+                        command.CommandText = "Insert Into Player (FinalTotalMoney, GameID) VALUES (@Money, @GameID)";
+                        command.Parameters.AddWithValue("@Money", board.players[i].Money);
+                        command.Parameters.AddWithValue("@GameID", gameID);
+                        command.ExecuteNonQuery();
+                        SqliteCommand selectPlayerIDCommand = new SqliteCommand
+                        ("SELECT TOP 1 PlayerID from Player BY PlayerID DESC", db);
+                        selectGameIDCommand.Transaction = transaction;
+                        SqliteDataReader playerResult = selectGameIDCommand.ExecuteReader();
+                        while (playerResult.Read())
+                        {
+                            players[i] = playerResult.GetInt16(0);
+                        }
+                        foreach(Property property in board.players[i].OwnedProperties)
+                        {
+                            command.CommandText = "Insert Into PlayerProperties (PlayerID, PropertyID) VALUES (@PlayerID, Select PropertyID FROM Property WHERE PropertyName Like @PropertyName)";
+                            command.Parameters.AddWithValue("@PlayerID", players[i]);
+                            command.Parameters.AddWithValue("@PropertyName", property.Name);
+                        }
                     }
-                    "INSERT INTO Property (PropertyName, PropertyGroupID) SELECT @Name, PropertyGroupID FROM PropertyGroup WHERE Color LIKE @Color;";
+
                 }
                 catch (Exception e)
                 {
