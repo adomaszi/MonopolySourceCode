@@ -186,7 +186,19 @@ namespace MonopolyAnalysis
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 simulationProgress.Text = text;
+                UpdateRecordCount();
             });
+        }
+
+        private void UpdateRecordCount()
+        {
+            twoPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(2).ToString();
+            threePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(3).ToString();
+            fourPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(4).ToString();
+            fivePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(5).ToString();
+            sixPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(6).ToString();
+            sevenPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(7).ToString();
+            eightPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(8).ToString();
         }
 
         

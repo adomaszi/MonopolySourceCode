@@ -35,31 +35,31 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "2 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,50,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="twoPlayersRecordAmount" Margin = "0,10,50,10" Text = "300" FontSize="14" HorizontalAlignment="Right"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "3 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="threePlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "4 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="fourPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "5 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="fivePlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "6 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="sixPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "7 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
+                        <TextBlock x:Name="sevenPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="22.6406" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
                         <TextBlock Margin = "0,10,0,10" Text = "8 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
-                        <TextBlock Margin = "0,10,0,10" Text = "300" FontSize="14" />
+                        <TextBlock x:Name="eightPlayersRecordAmount" Margin = "0,10,0,10" Text = "300" FontSize="14" />
                     </StackPanel>
                 </StackPanel>
 
