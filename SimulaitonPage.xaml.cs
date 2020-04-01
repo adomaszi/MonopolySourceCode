@@ -17,6 +17,7 @@ using Windows.UI.Core;
 using Windows.System.Threading;
 using System.Threading;
 using Monopoly;
+using MonolpolyAnalysis;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -35,7 +36,8 @@ namespace MonopolyAnalysis
         private static Mutex _asyncSimulationCounterMutex = new Mutex();
         private int _asyncSimulationCounter = 1;
         private double _processorCountValue;
-        
+        private List<GameResult> _gameResults = new List<GameResult>();
+
         public SimulationPage()
         {
             this.InitializeComponent();
@@ -99,7 +101,8 @@ namespace MonopolyAnalysis
 
         private void SyncSimulations()
         {
-            UpdateProgress("Simulations started");
+            simulationProgress.Text =  "Simulations started";
+            
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             for (int i = 1; i <= _gameAmount; i++)
@@ -115,8 +118,12 @@ namespace MonopolyAnalysis
 
             // Format and display the TimeSpan value.
             UpdateTimer(ts);
-            Debug.Print(_moves.Count.ToString());
-            UpdateProgress("Simulations finished");
+
+            simulationProgress.Text = "Simulations finished - saving results to the database";
+            DataAccess.SaveGameData(_gameResults);
+            _gameResults.Clear();
+            UpdateRecordCount();
+            simulationProgress.Text = "Done";
         }
         
         private bool IsDone()
@@ -126,8 +133,6 @@ namespace MonopolyAnalysis
                 _asyncSimulationCounterMutex.WaitOne();
                 _asyncSimulationCounter++;
                 _asyncSimulationCounterMutex.ReleaseMutex();
-                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, _processorCountValue);
-                UpdateProgress(progressString);
                 return false;
             } else
             {
@@ -137,6 +142,7 @@ namespace MonopolyAnalysis
 
         private void AsyncSimulations()
         {
+            UpdateProgressRing(true);
             UpdateProgress("Simulations started");
             _asyncSimulationCounter = 1;
             Stopwatch stopWatch = new Stopwatch();
@@ -162,7 +168,12 @@ namespace MonopolyAnalysis
                         // Get the elapsed time as a TimeSpan value.
                         TimeSpan ts = stopWatch.Elapsed;
                         UpdateTimer(ts);
-                        
+                        UpdateProgress("Simulations finished - saving results to the database");
+                        DataAccess.SaveGameData(_gameResults);
+                        _gameResults.Clear();
+                        UpdateRecordCount();
+                        UpdateProgress("Done");
+                        UpdateProgressRing(false);
                     }
                 }, WorkItemPriority.Low, WorkItemOptions.TimeSliced);
             }
@@ -181,25 +192,37 @@ namespace MonopolyAnalysis
             });
         }
 
+        async private void UpdateProgressRing(bool isActive)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                splashProgressRing.IsActive = isActive;
+            });
+        }
+
         async private void UpdateProgress(string text)
         {
             // Update the progress
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 simulationProgress.Text = text;
-                UpdateRecordCount();
+                
             });
         }
 
-        private void UpdateRecordCount()
+        async private void UpdateRecordCount()
         {
-            twoPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(2).ToString();
-            threePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(3).ToString();
-            fourPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(4).ToString();
-            fivePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(5).ToString();
-            sixPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(6).ToString();
-            sevenPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(7).ToString();
-            eightPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(8).ToString();
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                twoPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(2).ToString();
+                threePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(3).ToString();
+                fourPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(4).ToString();
+                fivePlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(5).ToString();
+                sixPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(6).ToString();
+                sevenPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(7).ToString();
+                eightPlayersRecordAmount.Text = DataAccess.GetNumberOfStoredGames(8).ToString();
+            });
         }
 
         
@@ -207,13 +230,8 @@ namespace MonopolyAnalysis
         {
             lock (_movesLock)
             {
-                foreach (Move move in moves)
-                {
-                    this._moves.Add(move);
-                }
-                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, _gameAmount);
-                UpdateProgress(progressString);
-                Debug.WriteLine(this._moves.Count);
+                GameResult game = new GameResult(moves, board);
+                _gameResults.Add(game);
             }
         }
 
@@ -233,4 +251,6 @@ namespace MonopolyAnalysis
 
         }
     }
+
+
 }

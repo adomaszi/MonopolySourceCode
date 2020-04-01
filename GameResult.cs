@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonolpolyAnalysis
 {
-    class GameResult
+    public class GameResult
     {
         private List<Move> _moves;
         private Board _board;
