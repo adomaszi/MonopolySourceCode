@@ -11,7 +11,7 @@
 
     <Grid Background="#FF726DA8">
 
-        
+
         <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="49*"/>
@@ -21,6 +21,7 @@
             <Button Click="NavigateToAnalysisPage" Content="Analysis" Width="80" Margin="100,0,0,0" />
             <Button Content="About" Width="80" Margin="190,0,0,0"/>
         </Grid>
-        <TextBlock x:Name="title" Text="About" Margin="10,47,-10,-47" />
+        <TextBlock x:Name="title" Text="About" Margin="10,65,-10,-65" SelectionChanged="title_SelectionChanged" />
+        <TextBlock HorizontalAlignment="Left" Margin="29,105,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="708" Height="507" SelectionChanged="TextBlock_SelectionChanged" FontSize="14"><Run Text="This application enables you to simulate and analyse the monopoly game."/><LineBreak/><Run/><LineBreak/><Run Text="Before you analyse games you will need to simulate them :"/><LineBreak/><Run/><LineBreak/><Run Text="-Go to the simulation tab"/><LineBreak/><Run/><LineBreak/><Run Text="- Select the number of players in the game."/><LineBreak/><Run/><LineBreak/><Run Text="-Choose the number of games in the simulation."/><LineBreak/><Run/><LineBreak/><Run Text="-Choose whether or not to use multiple cores of the CPU for the simulation."/><LineBreak/><Run/><LineBreak/><Run Text="-Click the simulation button to start the simulation."/><LineBreak/><Run/><LineBreak/><Run Text="To analyse:"/><LineBreak/><Run/><LineBreak/><Run Text="-Go to analyse tab."/><LineBreak/><Run/><LineBreak/><Run Text="-Select the number of players."/><LineBreak/><Run/><LineBreak/><Run Text="-Click the analyse button."/><LineBreak/><Run/><LineBreak/><Run Text="-See the updated diagrams"/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run Text="This analyse application is made by NHLstenden students :Adam Žitkus, Stephan Ruiz, Rami Mazolum, Annika Dietz"/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
     </Grid>
 </Page>
