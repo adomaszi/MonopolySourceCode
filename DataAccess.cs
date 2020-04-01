@@ -8,6 +8,7 @@ using Windows.Storage;
 using System.IO;
 using System.Diagnostics;
 using Monopoly;
+using MonolpolyAnalysis;
 
 namespace MonopolyAnalysis
 {
@@ -61,7 +62,7 @@ namespace MonopolyAnalysis
                       "GameID INTEGER PRIMARY KEY," +
                       "Name Text " +
                       ") ";
-               
+
 
                 String playerGameFieldsTable = "CREATE TABLE IF NOT EXISTS PlayerProperties ( " +
                       "PlayerPropertyID INTEGER PRIMARY KEY, " +
@@ -76,7 +77,7 @@ namespace MonopolyAnalysis
                       "CONSTRAINT FK_PlayerID FOREIGN KEY(PlayerID) " +
                       "REFERENCES Player(PlayerID) " +
                       "ON UPDATE CASCADE " +
-                      "ON DELETE CASCADE " + 
+                      "ON DELETE CASCADE " +
                       "); ";
 
                 String gameFieldTable = "CREATE TABLE IF NOT EXISTS Property ( " +
@@ -110,7 +111,7 @@ namespace MonopolyAnalysis
                     SqliteCommand createTable = new SqliteCommand(tableCommand, db);
 
                     createTable.ExecuteReader();
-                } 
+                }
             }
         }
 
@@ -195,7 +196,7 @@ namespace MonopolyAnalysis
 
                 SqliteCommand insertCommand = new SqliteCommand();
                 insertCommand.Connection = db;
-                
+
                 insertCommand.CommandText = "INSERT INTO PropertyGroup VALUES (NULL, @Color);";
                 insertCommand.Parameters.AddWithValue("@Color", color);
 
@@ -276,89 +277,102 @@ namespace MonopolyAnalysis
             return entries;
         }
 
-        public static void SaveGameData(List<Move> moves, int playerAmount, Board board)
+        public static void SaveGameData(List<GameResult> gameResults)
         {
+
             string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
                new SqliteConnection($"Filename={dbpath}"))
             {
                 db.Open();
 
-                SqliteCommand command = new SqliteCommand();
-                SqliteCommand selectCommand = new SqliteCommand();
-                command.Connection = db;
-                SqliteTransaction transaction = db.BeginTransaction();
-                command.Transaction = transaction;
 
-                int[] players = new int[playerAmount];
 
-                try
+                int index = 0;
+                foreach (GameResult game in gameResults)
                 {
-                    command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
-                    command.ExecuteNonQuery();
-                    selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", db);
-                    selectCommand.Transaction = transaction;
-                    SqliteDataReader gameResult = selectCommand.ExecuteReader();
-                    int gameID = 0;
-
-                    while (gameResult.Read())
+                    index++;
+                    SqliteCommand command = new SqliteCommand();
+                    SqliteCommand selectCommand = new SqliteCommand();
+                    command.Connection = db;
+                    SqliteTransaction transaction = db.BeginTransaction();
+                    command.Transaction = transaction;
+                    try
                     {
-                        gameID = gameResult.GetInt16(0);
-                    }
+                        Board board = game.Board;
+                        List<Move> moves = game.Moves;
+                        int playerAmount = board.players.Count;
 
-                    gameResult.Close();
-
-                    for (int i = 0; i < board.players.Count; i++)
-                    {
-                        command.CommandText = $"Insert Into Player (FinalTotalMoney, GameID) VALUES ({board.players[i].Money}, {gameID})";
+                        int[] players = new int[playerAmount];
+                        command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
                         command.ExecuteNonQuery();
+                        selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", db);
+                        selectCommand.Transaction = transaction;
+                        SqliteDataReader gameResult = selectCommand.ExecuteReader();
+                        int gameID = 0;
 
-                        selectCommand.CommandText = "SELECT PlayerID FROM Player ORDER BY PlayerID DESC LIMIT 1";
-                        SqliteDataReader playersResult = selectCommand.ExecuteReader();
-
-                        while (playersResult.Read())
+                        while (gameResult.Read())
                         {
-                            players[i] = playersResult.GetInt16(0);
+                            gameID = gameResult.GetInt16(0);
                         }
 
-                        playersResult.Close();
+                        gameResult.Close();
 
-                        foreach (BoardSpace space in board.players[i].OwnedProperties)
+                        for (int i = 0; i < board.players.Count; i++)
                         {
-                            if(space is Property)
+                            command.CommandText = $"Insert Into Player (FinalTotalMoney, GameID) VALUES ({board.players[i].Money}, {gameID})";
+                            command.ExecuteNonQuery();
+
+                            selectCommand.CommandText = "SELECT PlayerID FROM Player ORDER BY PlayerID DESC LIMIT 1";
+                            SqliteDataReader playersResult = selectCommand.ExecuteReader();
+
+                            while (playersResult.Read())
                             {
-                                command.CommandText = $"Insert Into PlayerProperties (PlayerID, PropertyID) SELECT {players[i]}, PropertyID FROM Property WHERE PropertyName Like '{space.Name}'";
+                                players[i] = playersResult.GetInt16(0);
+                            }
+
+                            playersResult.Close();
+
+                            foreach (BoardSpace space in board.players[i].OwnedProperties)
+                            {
+                                if (space is Property)
+                                {
+                                    command.CommandText = $"Insert Into PlayerProperties (PlayerID, PropertyID) SELECT {players[i]}, PropertyID FROM Property WHERE PropertyName Like '{space.Name}'";
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                        foreach (Move move in moves)
+                        {
+                            int playerIndex = board.players.FindIndex(u => u == move._player);
+                            if (playerIndex > -1 && move._property is Property)
+                            {
+                                command.CommandText = $"INSERT INTO GameMove (PlayerID, PropertyLandedOn, DiceRoll, GameID, MoneySpend) SELECT {players[playerIndex]}, PropertyID, {move._numberRolled}, {gameID}, {move._moneyPaid} FROM Property WHERE PropertyName LIKE '{move._property.Name}'";
                                 command.ExecuteNonQuery();
                             }
                         }
+                        transaction.Commit();
                     }
 
-                    foreach (Move move in moves)
+                    catch (Exception e)
                     {
-                        int playerIndex = board.players.FindIndex(u => u == move._player);
-                        if (playerIndex > -1 && move._property is Property)
-                        {
-                            command.CommandText = $"INSERT INTO GameMove (PlayerID, PropertyLandedOn, DiceRoll, GameID, MoneySpend) SELECT {players[playerIndex]}, PropertyID, {move._numberRolled}, {gameID}, {move._moneyPaid} FROM Property WHERE PropertyName LIKE '{move._property.Name}'";
-                            command.ExecuteNonQuery();
-                        }
+                        transaction.Rollback();
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + command.CommandText);
+                        Debug.WriteLine("");
+                    } finally
+                    {
+                        Debug.WriteLine("Done " + index);
                     }
+                    
 
-                    transaction.Commit();
 
                 }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + command.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
+                db.Close();
             }
+            
         }
 
         public static int GetNumberOfStoredGames(int numberPlayers)
@@ -411,7 +425,7 @@ namespace MonopolyAnalysis
         {
             List<int> allWinnerRolls = new List<int>();
             List<int> allGames = GetAllGameIDs(numberPlayers);
-            foreach(int id in allGames)
+            foreach (int id in allGames)
             {
                 int winnerID = GetWinnerIDOfGame(id);
                 string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
@@ -528,14 +542,14 @@ namespace MonopolyAnalysis
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
-               try
-               {
+                try
+                {
                     List<int> playerIDs = new List<int>();
                     Dictionary<int, int> propertyValueIDs = new Dictionary<int, int>();
                     foreach (int gameID in gameIDs)
                     {
                         String playerIDsString = "";
-                        switch(type)
+                        switch (type)
                         {
                             case "winner":
                                 playerIDs = new List<int>();
@@ -549,18 +563,18 @@ namespace MonopolyAnalysis
                                 playerIDs = GetAllPlayerIDsOfGame(gameID);
                                 break;
                         }
-                        
-                        for(int i = 0; i < playerIDs.Count; i ++)
+
+                        for (int i = 0; i < playerIDs.Count; i++)
                         {
                             playerIDsString += playerIDs[i].ToString();
-                            if(i != playerIDs.Count -1)
+                            if (i != playerIDs.Count - 1)
                             {
                                 playerIDsString += ", ";
                             }
                         }
 
                         db.Open();
-                        selectRevenue.CommandText = 
+                        selectRevenue.CommandText =
                             $"Select PropertyLandedOn, MoneySpend " +
                             $"From GameMove " +
                             $"WHERE GameID = {gameID} AND " +
@@ -569,7 +583,7 @@ namespace MonopolyAnalysis
                                 $"WHERE PlayerID IN ({playerIDsString}))";
                         selectRevenue.Connection = db;
 
-                
+
                         using (SqliteDataReader reader = selectRevenue.ExecuteReader())
                         {
                             while (reader.Read())
@@ -581,7 +595,7 @@ namespace MonopolyAnalysis
                                 }
                                 else
                                 {
-                                    propertyValueIDs.TryAdd(reader.GetInt32(0), reader.GetInt32(1)); 
+                                    propertyValueIDs.TryAdd(reader.GetInt32(0), reader.GetInt32(1));
                                 }
                             }
 
@@ -609,7 +623,7 @@ namespace MonopolyAnalysis
                     db.Close();
                 }
             }
-            
+
             return revenuePerProperty;
         }
 

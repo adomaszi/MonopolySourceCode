@@ -23,7 +23,7 @@ namespace MonopolyAnalysis
 
         public void Start()
         {
-            _board = _program.StartGame(_playerAmount, 90, this);
+            _board = _program.StartGame(_playerAmount, 60, this);
             onSimulationComplete();
         }
 
@@ -37,7 +37,6 @@ namespace MonopolyAnalysis
             if (SimulationComplete != null)
             {
                 SimulationComplete(this, _moves, _playerAmount, _board);
-                DataAccess.SaveGameData(_moves, _playerAmount, _board);
             }
         }
        
