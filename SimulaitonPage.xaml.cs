@@ -29,13 +29,12 @@ namespace MonopolyAnalysis
     {
         private int _playerAmount = 2;
         private int _gameAmount = 1;
-        private int _gameCount = 0;
-        private bool isMultiThreadedExecution = false;
+        private bool _isMultiThreadedExecution = false;
         private List<Move> _moves = new List<Move>();
         private readonly object _movesLock = new object();
         private static Mutex _asyncSimulationCounterMutex = new Mutex();
-        int _asyncSimulationCounter = 1;
-        double processorCountValue;
+        private int _asyncSimulationCounter = 1;
+        private double _processorCountValue;
         
         public SimulationPage()
         {
@@ -83,12 +82,12 @@ namespace MonopolyAnalysis
 
         private void MultiThreadedExecutionCheckbox_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            isMultiThreadedExecution = Convert.ToBoolean(this.multiThreadedExecution.IsChecked);
+            _isMultiThreadedExecution = Convert.ToBoolean(this.multiThreadedExecution.IsChecked);
         }
 
         private void StartSimulation(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            if (isMultiThreadedExecution)
+            if (_isMultiThreadedExecution)
             {
                 AsyncSimulations();
             }
@@ -122,12 +121,12 @@ namespace MonopolyAnalysis
         
         private bool IsDone()
         {
-            if (_asyncSimulationCounter != processorCountValue)
+            if (_asyncSimulationCounter != _processorCountValue)
             {
                 _asyncSimulationCounterMutex.WaitOne();
                 _asyncSimulationCounter++;
                 _asyncSimulationCounterMutex.ReleaseMutex();
-                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, processorCountValue);
+                string progressString = String.Format("{0} out of {1} processor cores done", _asyncSimulationCounter, _processorCountValue);
                 UpdateProgress(progressString);
                 return false;
             } else
@@ -142,10 +141,10 @@ namespace MonopolyAnalysis
             _asyncSimulationCounter = 1;
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            processorCountValue = processorCount.Value;
-            int split = _gameAmount / (int)processorCountValue;
+            _processorCountValue = processorCount.Value;
+            int split = _gameAmount / (int)_processorCountValue;
 
-            for (int i = 1; i <= processorCountValue; i++)
+            for (int i = 1; i <= _processorCountValue; i++)
             {
                  _ = Windows.System.Threading.ThreadPool.RunAsync(
                 (workItem) =>
