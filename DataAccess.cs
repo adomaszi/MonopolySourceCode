@@ -14,10 +14,10 @@ namespace MonopolyAnalysis
 {
     public static class DataAccess
     {
+        static readonly string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
         public async static void InitializeDatabase()
         {
             await ApplicationData.Current.LocalFolder.CreateFileAsync("monopolyDatabase.db", CreationCollisionOption.OpenIfExists);
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
                new SqliteConnection($"Filename={dbpath}"))
             {
@@ -117,7 +117,6 @@ namespace MonopolyAnalysis
 
         public static void DropAllTables()
         {
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -188,7 +187,6 @@ namespace MonopolyAnalysis
 
         public static void AddFieldGroupColor(String color)
         {
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -220,7 +218,6 @@ namespace MonopolyAnalysis
 
         public static void AddField(String name, String color)
         {
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -255,7 +252,6 @@ namespace MonopolyAnalysis
         {
             List<String> entries = new List<string>();
 
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
                new SqliteConnection($"Filename={dbpath}"))
             {
@@ -280,7 +276,6 @@ namespace MonopolyAnalysis
         public static void SaveGameData(List<GameResult> gameResults)
         {
 
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
                new SqliteConnection($"Filename={dbpath}"))
             {
@@ -378,7 +373,6 @@ namespace MonopolyAnalysis
         public static int GetNumberOfStoredGames(int numberPlayers)
         {
             int count = 0;
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -423,17 +417,21 @@ namespace MonopolyAnalysis
 
         public static List<int> GetRollsOfWinners(int numberPlayers)
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             List<int> allWinnerRolls = new List<int>();
             List<int> allGames = GetAllGameIDs(numberPlayers);
-            foreach (int id in allGames)
+            
+            using (SqliteConnection db =
+                  new SqliteConnection($"Filename={dbpath}"))
+            {
+                db.Open();
+                foreach (int id in allGames)
             {
                 int winnerID = GetWinnerIDOfGame(id);
-                string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+                
 
-                using (SqliteConnection db =
-                  new SqliteConnection($"Filename={dbpath}"))
-                {
-                    db.Open();
+                
 
                     SqliteCommand selectDiceRoll = new SqliteCommand();
                     selectDiceRoll.Connection = db;
@@ -448,7 +446,6 @@ namespace MonopolyAnalysis
                             while (reader.Read())
                             {
                                 int num = reader.GetInt32(0);
-                                Debug.WriteLine(num);
                                 allWinnerRolls.Add(num);
                             }
                         }
@@ -462,10 +459,16 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        db.Close();
+                        
                     }
                 }
+                db.Close();
             }
+
+            stopWatch.Stop();
+            // Get the elapsed time as a TimeSpan value.
+            TimeSpan ts = stopWatch.Elapsed;
+            Debug.WriteLine(ts);
             return allWinnerRolls;
         }
 
@@ -476,7 +479,6 @@ namespace MonopolyAnalysis
             foreach (int id in allGames)
             {
                 int loserID = GetLoserIDOfGame(id);
-                string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
 
                 using (SqliteConnection db =
                   new SqliteConnection($"Filename={dbpath}"))
@@ -540,7 +542,6 @@ namespace MonopolyAnalysis
         {
             Dictionary<String, int> revenuePerProperty = new Dictionary<string, int>();
             SqliteCommand selectRevenue = new SqliteCommand();
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -632,7 +633,6 @@ namespace MonopolyAnalysis
         private static List<int> GetAllGameIDs(int numberPlayers)
         {
             List<int> allGameIDs = new List<int>();
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -671,7 +671,6 @@ namespace MonopolyAnalysis
         private static int GetWinnerIDOfGame(int gameID)
         {
             int winnerID = -1;
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
 
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
@@ -709,7 +708,6 @@ namespace MonopolyAnalysis
         private static int GetLoserIDOfGame(int gameID)
         {
             int loserID = -1;
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
 
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
@@ -747,7 +745,6 @@ namespace MonopolyAnalysis
         private static List<int> GetAllPlayerIDsOfGame(int gameID)
         {
             List<int> playerIDs = new List<int>();
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
@@ -785,7 +782,6 @@ namespace MonopolyAnalysis
         private static String GetPropertyNameByID(int propertyID)
         {
             String propertyName = "";
-            string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
             using (SqliteConnection db =
               new SqliteConnection($"Filename={dbpath}"))
             {
