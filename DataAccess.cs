@@ -15,13 +15,12 @@ namespace MonopolyAnalysis
     public static class DataAccess
     {
         static readonly string _dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
-        static readonly SqliteConnection _sqlConnection = new SqliteConnection($"Filename={_dbpath}");
         public async static void InitializeDatabase()
         {
             await ApplicationData.Current.LocalFolder.CreateFileAsync("monopolyDatabase.db", CreationCollisionOption.OpenIfExists);
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 String gameMoveTable = "CREATE TABLE IF NOT EXISTS GameMove ( " +
                       "GameMoveID INTEGER PRIMARY KEY," +
@@ -108,19 +107,19 @@ namespace MonopolyAnalysis
 
                 foreach (string tableCommand in commandStrings)
                 {
-                    SqliteCommand createTable = new SqliteCommand(tableCommand, _sqlConnection);
+                    SqliteCommand createTable = new SqliteCommand(tableCommand, sqlConnection);
 
                     createTable.ExecuteReader();
                 }
-                _sqlConnection.Close();
+                sqlConnection.Close();
             }
         }
 
         public static void DropAllTables()
         {
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 List<String> commandStrings = new List<string>
                 {
@@ -134,12 +133,12 @@ namespace MonopolyAnalysis
 
                 foreach (string tableCommand in commandStrings)
                 {
-                    SqliteCommand createTable = new SqliteCommand(tableCommand, _sqlConnection);
+                    SqliteCommand createTable = new SqliteCommand(tableCommand, sqlConnection);
 
                     createTable.ExecuteReader();
                 }
 
-                _sqlConnection.Close();
+                sqlConnection.Close();
             }
         }
 
@@ -187,12 +186,12 @@ namespace MonopolyAnalysis
 
         public static void AddFieldGroupColor(String color)
         {
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 SqliteCommand insertCommand = new SqliteCommand();
-                insertCommand.Connection = _sqlConnection;
+                insertCommand.Connection = sqlConnection;
 
                 insertCommand.CommandText = "INSERT INTO PropertyGroup VALUES (NULL, @Color);";
                 insertCommand.Parameters.AddWithValue("@Color", color);
@@ -210,19 +209,19 @@ namespace MonopolyAnalysis
                 }
                 finally
                 {
-                    _sqlConnection.Close();
+                    sqlConnection.Close();
                 }
             }
         }
 
         public static void AddField(String name, String color)
         {
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 SqliteCommand insertCommand = new SqliteCommand();
-                insertCommand.Connection = _sqlConnection;
+                insertCommand.Connection = sqlConnection;
 
                 insertCommand.CommandText = "INSERT INTO Property (PropertyName, PropertyGroupID) SELECT @Name, PropertyGroupID FROM PropertyGroup WHERE Color LIKE @Color;";
                 insertCommand.Parameters.AddWithValue("@Name", name);
@@ -238,7 +237,7 @@ namespace MonopolyAnalysis
                 }
                 finally
                 {
-                    _sqlConnection.Close();
+                    sqlConnection.Close();
                 }
             }
         }
@@ -247,12 +246,12 @@ namespace MonopolyAnalysis
         {
             List<String> entries = new List<string>();
 
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 SqliteCommand selectCommand = new SqliteCommand
-                    ("SELECT Color from FieldGroup", _sqlConnection);
+                    ("SELECT Color from FieldGroup", sqlConnection);
 
                 SqliteDataReader query = selectCommand.ExecuteReader();
 
@@ -261,7 +260,7 @@ namespace MonopolyAnalysis
                     entries.Add(query.GetString(0));
                 }
 
-                _sqlConnection.Close();
+                sqlConnection.Close();
             }
 
             return entries;
@@ -270,20 +269,18 @@ namespace MonopolyAnalysis
         public static void SaveGameData(List<GameResult> gameResults)
         {
 
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
-
-
-
+                sqlConnection.Open();
+                
                 int index = 0;
                 foreach (GameResult game in gameResults)
                 {
                     index++;
                     SqliteCommand command = new SqliteCommand();
                     SqliteCommand selectCommand = new SqliteCommand();
-                    command.Connection = _sqlConnection;
-                    SqliteTransaction transaction = _sqlConnection.BeginTransaction();
+                    command.Connection = sqlConnection;
+                    SqliteTransaction transaction = sqlConnection.BeginTransaction();
                     command.Transaction = transaction;
                     try
                     {
@@ -294,7 +291,7 @@ namespace MonopolyAnalysis
                         int[] players = new int[playerAmount];
                         command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
                         command.ExecuteNonQuery();
-                        selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", _sqlConnection);
+                        selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", sqlConnection);
                         selectCommand.Transaction = transaction;
                         SqliteDataReader gameResult = selectCommand.ExecuteReader();
                         int gameID = 0;
@@ -359,7 +356,7 @@ namespace MonopolyAnalysis
 
 
                 }
-                _sqlConnection.Close();
+                sqlConnection.Close();
             }
 
         }
@@ -367,12 +364,12 @@ namespace MonopolyAnalysis
         public static int GetNumberOfStoredGames(int numberPlayers)
         {
             int count = 0;
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
-                _sqlConnection.Open();
+                sqlConnection.Open();
 
                 SqliteCommand selectAmountCommand = new SqliteCommand();
-                selectAmountCommand.Connection = _sqlConnection;
+                selectAmountCommand.Connection = sqlConnection;
 
                 try
                 {
@@ -402,7 +399,7 @@ namespace MonopolyAnalysis
                 }
                 finally
                 {
-                    _sqlConnection.Close();
+                    sqlConnection.Close();
                 }
             }
             return count;
@@ -415,14 +412,14 @@ namespace MonopolyAnalysis
             List<int> allWinnerRolls = new List<int>();
             List<int> allGames = GetAllGameIDs(numberPlayers);
 
-            using (_sqlConnection)
+            using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
             {
                 foreach (int id in allGames)
                 {
                     int winnerID = GetWinnerIDOfGame(id);
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand selectDiceRoll = new SqliteCommand();
-                    selectDiceRoll.Connection = _sqlConnection;
+                    selectDiceRoll.Connection = sqlConnection;
 
                     try {
 
@@ -445,7 +442,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
 
                 }
@@ -466,16 +463,16 @@ namespace MonopolyAnalysis
                 {
                     int loserID = GetLoserIDOfGame(id);
 
-                    using (_sqlConnection)
+                    using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                     {
-                        _sqlConnection.Open();
+                        sqlConnection.Open();
 
                         SqliteCommand selectDiceRoll = new SqliteCommand();
 
                         try
                         {
                             selectDiceRoll.CommandText = $"Select DiceRoll From GameMove Where PlayerID = {loserID}";
-                            selectDiceRoll.Connection = _sqlConnection;
+                            selectDiceRoll.Connection = sqlConnection;
 
                             using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
                             {
@@ -494,7 +491,7 @@ namespace MonopolyAnalysis
                         }
                         finally
                         {
-                            _sqlConnection.Close();
+                            sqlConnection.Close();
                         }
                     }
                 }
@@ -515,19 +512,87 @@ namespace MonopolyAnalysis
                 return revenuePerProperty;
             }
 
-            public static Dictionary<String, int> GetAllPropertyRevenue(int numberPlayers)
+            public static Dictionary<String, int> GetAmountLandedOn(int numberPlayers)
             {
                 List<int> gameIDs = GetAllGameIDs(numberPlayers);
+                Dictionary<String, int> landedOnPerProperty = new Dictionary<string, int>();
 
-                Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "all");
-                return revenuePerProperty;
+                SqliteCommand selectRevenue = new SqliteCommand();
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
+                {
+                    try
+                    {
+                        List<int> playerIDs = new List<int>();
+                        Dictionary<int, int> propertyValueIDs = new Dictionary<int, int>();
+                        foreach (int gameID in gameIDs)
+                        {
+                            String playerIDsString = "";
+                            playerIDs = GetAllPlayerIDsOfGame(gameID);
+
+
+                            for (int i = 0; i < playerIDs.Count; i++)
+                            {
+                                playerIDsString += playerIDs[i].ToString();
+                                if (i != playerIDs.Count - 1)
+                                {
+                                    playerIDsString += ", ";
+                                }
+                            }
+
+                            sqlConnection.Open();
+                            selectRevenue.CommandText =
+                                $"Select PropertyLandedOn " +
+                                $"From GameMove " +
+                                $"WHERE GameID = {gameID} AND " +
+                                $"PlayerID IN ( {playerIDsString} )";
+                            selectRevenue.Connection = sqlConnection;
+
+                            using (SqliteDataReader reader = selectRevenue.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    int value;
+                                    if (propertyValueIDs.TryGetValue(reader.GetInt32(0), out value))
+                                    {
+                                        propertyValueIDs[reader.GetInt32(0)] = value + 1;
+                                    }
+                                    else
+                                    {
+                                        propertyValueIDs.TryAdd(reader.GetInt32(0), 1);
+                                    }
+                                }
+
+                            }
+                        }
+
+                        foreach (KeyValuePair<int, int> entry in propertyValueIDs)
+                        {
+                            String propertyName = GetPropertyNameByID(entry.Key);
+                            landedOnPerProperty.TryAdd(propertyName, entry.Value);
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectRevenue.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        sqlConnection.Close();
+                    }
+                }
+
+            return landedOnPerProperty;
             }
 
             private static Dictionary<String, int> GetPropertyRevenues(List<int> gameIDs, String type)
             {
                 Dictionary<String, int> revenuePerProperty = new Dictionary<string, int>();
                 SqliteCommand selectRevenue = new SqliteCommand();
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
                     try
                     {
@@ -560,7 +625,7 @@ namespace MonopolyAnalysis
                                 }
                             }
 
-                            _sqlConnection.Open();
+                            sqlConnection.Open();
                             selectRevenue.CommandText =
                                 $"Select PropertyLandedOn, MoneySpend " +
                                 $"From GameMove " +
@@ -568,7 +633,7 @@ namespace MonopolyAnalysis
                                 $"PropertyLandedOn IN ( " +
                                     $"Select PropertyID From PlayerProperties " +
                                     $"WHERE PlayerID IN ({playerIDsString}))";
-                            selectRevenue.Connection = _sqlConnection;
+                            selectRevenue.Connection = sqlConnection;
 
 
                             using (SqliteDataReader reader = selectRevenue.ExecuteReader())
@@ -607,7 +672,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
                 }
 
@@ -617,13 +682,13 @@ namespace MonopolyAnalysis
             private static List<int> GetAllGameIDs(int numberPlayers)
             {
                 List<int> allGameIDs = new List<int>();
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand command = new SqliteCommand(
                                         "Select GameID FROM Player Group By GameID " +
                                        $"having Count(PlayerID) = { numberPlayers}");
-                    command.Connection = _sqlConnection;
+                    command.Connection = sqlConnection;
 
                     try
                     {
@@ -644,7 +709,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
 
                 }
@@ -655,12 +720,12 @@ namespace MonopolyAnalysis
             {
                 int winnerID = -1;
 
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand selectWinnerIDs = new SqliteCommand(
                         $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney DESC LIMIT 1");
-                    selectWinnerIDs.Connection = _sqlConnection;
+                    selectWinnerIDs.Connection = sqlConnection;
 
                     try
                     {
@@ -681,7 +746,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
                 }
                 return winnerID;
@@ -691,12 +756,12 @@ namespace MonopolyAnalysis
             {
                 int loserID = -1;
 
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand selectWinnerIDs = new SqliteCommand(
                         $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney ASC LIMIT 1");
-                    selectWinnerIDs.Connection = _sqlConnection;
+                    selectWinnerIDs.Connection = sqlConnection;
 
                     try
                     {
@@ -717,7 +782,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
                 }
                 return loserID;
@@ -726,12 +791,12 @@ namespace MonopolyAnalysis
             private static List<int> GetAllPlayerIDsOfGame(int gameID)
             {
                 List<int> playerIDs = new List<int>();
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand selectWinnerIDs = new SqliteCommand(
                         $"Select PlayerID From Player WHERE GameID = {gameID}");
-                    selectWinnerIDs.Connection = _sqlConnection;
+                    selectWinnerIDs.Connection = sqlConnection;
 
                     try
                     {
@@ -752,7 +817,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
                 }
 
@@ -762,12 +827,12 @@ namespace MonopolyAnalysis
             private static String GetPropertyNameByID(int propertyID)
             {
                 String propertyName = "";
-                using (_sqlConnection)
+                using (SqliteConnection sqlConnection = new SqliteConnection($"Filename={_dbpath}"))
                 {
-                    _sqlConnection.Open();
+                    sqlConnection.Open();
                     SqliteCommand command = new SqliteCommand(
                                         $"Select PropertyName FROM Property Where PropertyID = {propertyID} ");
-                    command.Connection = _sqlConnection;
+                    command.Connection = sqlConnection;
 
                     try
                     {
@@ -788,7 +853,7 @@ namespace MonopolyAnalysis
                     }
                     finally
                     {
-                        _sqlConnection.Close();
+                        sqlConnection.Close();
                     }
 
                 }

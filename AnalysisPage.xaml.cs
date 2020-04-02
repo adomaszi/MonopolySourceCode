@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Navigation;
 using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Appointments;
+using System.Threading.Tasks;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace MonopolyAnalysis
@@ -38,12 +39,6 @@ namespace MonopolyAnalysis
         {
             this.InitializeComponent();
             Debug.Write("Analyse init ======================================");
-            // Remove them from here and put them into the single/multi threaded analysis
-            //AnalyzeWinnerAverageRoll();
-            //AnalyzeLoserAverageRoll();
-            //AnalyzeTotalBestProperties();
-            //AnalyzeWinnerBestProperties();
-            //AnalyzeLoserBestProperties();
         }
 
 
@@ -60,20 +55,14 @@ namespace MonopolyAnalysis
             }
         }
 
-        private void MultiThreadedAnalysis()
+        private async void MultiThreadedAnalysis()
         {
             simulationProgress.Text = "Analysis started";
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-
-            AnalyzeWinnerAverageRoll();
-            AnalyzeLoserAverageRoll();
-            AnalyzeTotalBestProperties();
-            AnalyzeWinnerBestProperties();
-            AnalyzeLoserBestProperties();
-
+            await Task.Run(() => RunAllAnalyses());
 
             stopWatch.Stop();
             // Get the elapsed time as a TimeSpan value.
@@ -82,6 +71,21 @@ namespace MonopolyAnalysis
             // Format and display the TimeSpan value.
             UpdateTimer(ts);
             simulationProgress.Text = "Analysis finished";
+        }
+
+        private void RunAllAnalyses()
+        {
+            Task winnerAverage = Task.Run(() => AnalyzeWinnerAverageRoll());
+            Task loserAverage = Task.Run(() => AnalyzeLoserAverageRoll());
+            Task mostLandedOn = Task.Run(() => AnalyzeMostLandedOnProperty());
+            Task winnerBestProperties = Task.Run(() => AnalyzeWinnerBestProperties());
+            Task loserBestProperties = Task.Run(() => AnalyzeLoserBestProperties());
+
+            winnerAverage.Wait();
+            loserAverage.Wait();
+            mostLandedOn.Wait();
+            winnerBestProperties.Wait();
+            loserBestProperties.Wait();
         }
 
         private void SingeThreadedAnalysis()
@@ -94,7 +98,7 @@ namespace MonopolyAnalysis
 
             AnalyzeWinnerAverageRoll();
             AnalyzeLoserAverageRoll();
-            AnalyzeTotalBestProperties();
+            AnalyzeMostLandedOnProperty();
             AnalyzeWinnerBestProperties();
             AnalyzeLoserBestProperties();
 
@@ -148,11 +152,32 @@ namespace MonopolyAnalysis
                     heighest = rollAmount;
                     diceRoll = i;
                 }
-                //decimal de = (decimal) roll / sum * 100;
-                //Debug.WriteLine($"I: {i}, percent: {de}");
             }
 
-            Debug.WriteLine($"Winner on average roll: {diceRoll}");
+            updateAverageWinnerUI(diceRoll);
+        }
+
+        private async Task AsyncAnalyzeWinnerAverageRoll()
+        {
+            List<int> listt = DataAccess.GetRollsOfWinners(_playerAmount);
+            int heighest = -1;
+            int diceRoll = -1;
+            for (int i = 1; i <= 12; i++)
+            {
+                int rollAmount = -1;
+                rollAmount = (from element in listt.AsParallel().WithDegreeOfParallelism(2)
+                                  where element == i
+                                  select element).Sum();
+
+
+                if (heighest < rollAmount)
+                {
+                    heighest = rollAmount;
+                    diceRoll = i;
+                }
+            }
+
+            updateAverageWinnerUI(diceRoll);
         }
 
         private void AnalyzeLoserAverageRoll()
@@ -175,11 +200,7 @@ namespace MonopolyAnalysis
                                   where element == i
                                   select element).Sum();
                 }
-
-
-                //int rollAmount = (from element in listt
-                //            where element == i
-                //            select element).Sum();
+                
 
                 if (heighest < rollAmount)
                 {
@@ -187,15 +208,14 @@ namespace MonopolyAnalysis
                     diceRoll = i;
                 }
             }
-
-            Debug.WriteLine($"Loser on average roll: {diceRoll}");
+            
+            updateAverageLoserUI(diceRoll);
         }
 
         private void AnalyzeWinnerBestProperties()
         {
             Dictionary<String, int> dict = DataAccess.GetWinnerPropertyRevenue(_playerAmount);
             List<int> flattenList = dict.Values.ToList();
-            //var firstFiveArrivals = flattenList.OrderByDescending(i => i).Take(5);
             IEnumerable<int> firstFiveArrivals;
             if (_isMultiThreadedExecution)
             {
@@ -209,44 +229,54 @@ namespace MonopolyAnalysis
                                      orderby t descending
                                      select t).Take(5);
             }
-
-            Debug.WriteLine("Winner");
-            foreach (int i in firstFiveArrivals)
-            {
-                var myKey = dict.FirstOrDefault(x => x.Value == i).Key;
-                Debug.WriteLine($"I from dic : {i} and property : {myKey}");
-            }
+            updateBestWinnerProperties(firstFiveArrivals, flattenList.Count, dict);
         }
 
         private void AnalyzeLoserBestProperties()
         {
             Dictionary<String, int> dict = DataAccess.GetLoserPropertyRevenue(_playerAmount); ;
             List<int> flattenList = dict.Values.ToList();
-            var firstFiveArrivals = (from t in flattenList
-                                     orderby t
-                                     select t).Take(5);
-
-            Debug.WriteLine("Loser");
-            foreach (int i in firstFiveArrivals)
+            IEnumerable<int> firstFiveArrivals;
+            if (_isMultiThreadedExecution)
             {
-                var myKey = dict.FirstOrDefault(x => x.Value == i).Key;
-                Debug.WriteLine($"I from dic : {i} and property : {myKey}");
+                firstFiveArrivals = (from t in flattenList.AsParallel().WithDegreeOfParallelism(2)
+                                         orderby t descending
+                                         select t).Take(5);
             }
+            else
+            {
+                firstFiveArrivals = (from t in flattenList
+                                         orderby t descending
+                                         select t).Take(5);
+            }
+
+            updateBestLoserProperties(firstFiveArrivals, flattenList.Count, dict);
         }
 
-        private void AnalyzeTotalBestProperties()
+        private void AnalyzeMostLandedOnProperty()
         {
-            Dictionary<String, int> dict = DataAccess.GetAllPropertyRevenue(_playerAmount);
+            Dictionary<String, int> dict = DataAccess.GetAmountLandedOn(_playerAmount);
             List<int> flattenList = dict.Values.ToList();
-            var firstFiveArrivals = (from t in flattenList
-                                     orderby t descending
-                                     select t).Take(1);
+            IEnumerable<int> mostLandedOnProperty;
+            if (_isMultiThreadedExecution)
+            {
+                mostLandedOnProperty = (from t in flattenList.AsParallel().WithDegreeOfParallelism(2)
+                                    orderby t descending
+                                    select t).Take(1);
+            }
+            else
+            {
+                mostLandedOnProperty = (from t in flattenList
+                                    orderby t descending
+                                    select t).Take(1);
+            }
 
             Debug.WriteLine("All");
-            foreach (int i in firstFiveArrivals)
+            foreach (int i in mostLandedOnProperty)
             {
-                var myKey = dict.FirstOrDefault(x => x.Value == i).Key;
-                Debug.WriteLine($"I from dic : {i} and property : {myKey}");
+                var mostLandedOn = dict.FirstOrDefault(x => x.Value == i).Key;
+                int average = i / flattenList.Count;
+                updateMostLandedOnField(mostLandedOn, average);
             }
         }
 
@@ -281,10 +311,98 @@ namespace MonopolyAnalysis
                 this.playerAmountLabel.Text = labelText;
             }
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        
+        private async void updateAverageWinnerUI(int diceRoll)
         {
-            SingeThreadedAnalysis();
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                AverageRollWinner.Text = diceRoll.ToString();
+            });
+        }
+
+        private async void updateAverageLoserUI(int diceRoll)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                AverageRollLoser.Text = diceRoll.ToString();
+            });
+        }
+
+        private async void updateMostLandedOnField(String mostLandedOn, int average)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                MostLandedOnProperty.Text = "The most landed on property was " + mostLandedOn + " on which players landed on " + average + " times on average.";
+            });
+        }
+
+        private async void updateBestWinnerProperties(IEnumerable<int> firstFiveArrivals, int total, Dictionary<String, int> dict)
+        {
+            int counter = 1;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                foreach (int i in firstFiveArrivals)
+                {
+                    var propertyName = dict.FirstOrDefault(x => x.Value == i).Key;
+                    int average = i / total;
+                    switch(counter)
+                    {
+                        case 1:
+                            FirstPropertyNameWinner.Text = propertyName;
+                            FirstPropertyRevenueWinner.Text = average.ToString();
+                            break;
+                        case 2:
+                            SecondPropertyNameWinner.Text = propertyName;
+                            SecondPropertyRevenueWinner.Text = average.ToString();
+                            break;
+                        case 3:
+                            ThirdPropertyNameWinner.Text = propertyName;
+                            ThirdPropertyRevenueWinner.Text = average.ToString();
+                            break;
+                        case 4:
+                            FourthPropertyNameWinner.Text = propertyName;
+                            FourthPropertyRevenueWinner.Text = average.ToString();
+                            break;
+                        case 5:
+                            FifthPropertyNameWinner.Text = propertyName;
+                            FifthPropertyRevenueWinner.Text = average.ToString();
+                            break;
+                    }
+                    counter++;
+                }
+            });
+        }
+
+        private async void updateBestLoserProperties(IEnumerable<int> firstFiveArrivals, int total, Dictionary<String, int> dict)
+        {
+            int counter = 1;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                foreach (int i in firstFiveArrivals)
+                {
+                    var propertyName = dict.FirstOrDefault(x => x.Value == i).Key;
+                    int average = i / total;
+                    switch (counter)
+                    {
+                        case 1:
+                            FirstPropertyNameLoser.Text = propertyName;
+                            FirstPropertyRevenueLoser.Text = average.ToString();
+                            break;
+                        case 2:
+                            SecondPropertyNameLoser.Text = propertyName;
+                            SecondPropertyRevenueLoser.Text = average.ToString();
+                            break;
+                        case 3:
+                            ThirdPropertyNameLoser.Text = propertyName;
+                            ThirdPropertyRevenueLoser.Text = average.ToString();
+                            break;
+                        case 4:
+                            FourthPropertyNameLoser.Text = propertyName;
+                            FourthPropertyRevenueLoser.Text = average.ToString();
+                            break;
+                        case 5:
+                            FifthPropertyNameLoser.Text = propertyName;
+                            FifthPropertyRevenueLoser.Text = average.ToString();
+                            break;
+                    }
+                    counter++;
+                }
+            });
         }
     }
 }
