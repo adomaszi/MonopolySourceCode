@@ -80,7 +80,7 @@
                             <ProgressRing Name="splashProgressRing" IsActive="False" Width="20" HorizontalAlignment="Center"></ProgressRing>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Width="657" HorizontalAlignment="Right" VerticalAlignment="Stretch" >
-                            <TextBlock x:Name = "simulationTime" Margin = "50,10,60,10" Text = "Time elapsed" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="102"  />
+                            <TextBlock x:Name = "analysisTime" Margin = "50,10,60,10" Text = "Time elapsed" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="102"  />
                             <!--<Button x:Name = "simulationButton" Content="Start simulations" Click="StartAnalysisHandler" VerticalAlignment="Stretch" Width="154" />-->
                             <Button  x:Name = "simulationButton" Content="Start analyzing" VerticalAlignment="Top" Click="StartAnalysisHandler" Width="154"/>
                         </StackPanel>

@@ -71,7 +71,7 @@ namespace MonopolyAnalysis
 
         private void SingeThreadedAnalysis()
         {
-            simulationProgress.Text = "Simulations started";
+            simulationProgress.Text = "Analysis started";
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -90,6 +90,7 @@ namespace MonopolyAnalysis
 
             // Format and display the TimeSpan value.
             UpdateTimer(ts);
+            simulationProgress.Text = "Analysis finished";
 
         }
 
@@ -103,7 +104,7 @@ namespace MonopolyAnalysis
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Debug.WriteLine(elapsedTime);
-                //simulationTime.Text = elapsedTime;
+                analysisTime.Text = elapsedTime;
             });
         }
 
