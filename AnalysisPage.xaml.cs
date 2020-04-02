@@ -62,11 +62,26 @@ namespace MonopolyAnalysis
 
         private void MultiThreadedAnalysis()
         {
-            //AnalyzeWinnerAverageRoll();
-            //AnalyzeLoserAverageRoll();
-            //AnalyzeTotalBestProperties();
-            //AnalyzeWinnerBestProperties();
-            //AnalyzeLoserBestProperties();
+            simulationProgress.Text = "Analysis started";
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+
+            AnalyzeWinnerAverageRoll();
+            AnalyzeLoserAverageRoll();
+            AnalyzeTotalBestProperties();
+            AnalyzeWinnerBestProperties();
+            AnalyzeLoserBestProperties();
+
+
+            stopWatch.Stop();
+            // Get the elapsed time as a TimeSpan value.
+            TimeSpan ts = stopWatch.Elapsed;
+
+            // Format and display the TimeSpan value.
+            UpdateTimer(ts);
+            simulationProgress.Text = "Analysis finished";
         }
 
         private void SingeThreadedAnalysis()
@@ -100,7 +115,6 @@ namespace MonopolyAnalysis
                             ts.Hours, ts.Minutes, ts.Seconds,
                             ts.Milliseconds / 10);
 
-            // Update the timer
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Debug.WriteLine(elapsedTime);
@@ -110,19 +124,24 @@ namespace MonopolyAnalysis
 
         private void AnalyzeWinnerAverageRoll()
         {
-            // DataAccess.GetRollsOfWinners returns a List<int> with all rolls that winners made. To get the average, the calculation needs to be done here with plinq
             List<int> listt = DataAccess.GetRollsOfWinners(_playerAmount);
-            //var sum = (from element in listt
-            //           select element).Sum();
             int heighest = -1;
             int diceRoll = -1;
             for (int i = 1; i <= 12; i++)
             {
+                int rollAmount = -1;
+                if (_isMultiThreadedExecution)
+                {
+                    rollAmount = (from element in listt.AsParallel().WithDegreeOfParallelism(2)
+                                      where element == i
+                                      select element).Sum();
+                } else
+                {
+                    rollAmount = (from element in listt.AsParallel()
+                                      where element == i
+                                      select element).Sum();
+                }
 
-
-                int rollAmount = (from element in listt
-                            where element == i
-                            select element).Sum();
 
                 if (heighest < rollAmount)
                 {
@@ -138,27 +157,35 @@ namespace MonopolyAnalysis
 
         private void AnalyzeLoserAverageRoll()
         {
-            // DataAccess.GetRollsOfLoser returns a List<int> with all rolls that losers made. To get the average, the calculation needs to be done here with plinq
-            List<int> listt = DataAccess.GetRollsOfLosers(_playerAmount); ;
-            //var sum = (from element in listt
-            //           select element).Sum();
+            List<int> listt = DataAccess.GetRollsOfLosers(_playerAmount);
             int heighest = -1;
             int diceRoll = -1;
             for (int i = 1; i <= 12; i++)
             {
+                int rollAmount = -1;
+                if (_isMultiThreadedExecution)
+                {
+                    rollAmount = (from element in listt.AsParallel().WithDegreeOfParallelism(2)
+                                  where element == i
+                                  select element).Sum();
+                }
+                else
+                {
+                    rollAmount = (from element in listt.AsParallel()
+                                  where element == i
+                                  select element).Sum();
+                }
 
 
-                int rollAmount = (from element in listt
-                            where element == i
-                            select element).Sum();
+                //int rollAmount = (from element in listt
+                //            where element == i
+                //            select element).Sum();
 
                 if (heighest < rollAmount)
                 {
                     heighest = rollAmount;
                     diceRoll = i;
                 }
-                //decimal de = (decimal) roll / sum * 100;
-                //Debug.WriteLine($"I: {i}, percent: {de}");
             }
 
             Debug.WriteLine($"Loser on average roll: {diceRoll}");
@@ -168,7 +195,20 @@ namespace MonopolyAnalysis
         {
             Dictionary<String, int> dict = DataAccess.GetWinnerPropertyRevenue(_playerAmount);
             List<int> flattenList = dict.Values.ToList();
-            var firstFiveArrivals = flattenList.OrderByDescending(i => i).Take(5);
+            //var firstFiveArrivals = flattenList.OrderByDescending(i => i).Take(5);
+            IEnumerable<int> firstFiveArrivals;
+            if (_isMultiThreadedExecution)
+            {
+                firstFiveArrivals = (from t in flattenList.AsParallel().WithDegreeOfParallelism(2)
+                                     orderby t descending
+                                     select t).Take(5);
+            }
+            else
+            {
+                firstFiveArrivals = (from t in flattenList
+                                     orderby t descending
+                                     select t).Take(5);
+            }
 
             Debug.WriteLine("Winner");
             foreach (int i in firstFiveArrivals)
@@ -176,19 +216,15 @@ namespace MonopolyAnalysis
                 var myKey = dict.FirstOrDefault(x => x.Value == i).Key;
                 Debug.WriteLine($"I from dic : {i} and property : {myKey}");
             }
-
-            //foreach (KeyValuePair<string, int> item in dict)
-            //{
-            //    Debug.WriteLine("Key: {0}, Value: {1}", item.Key, item.Value);
-            //}
         }
 
         private void AnalyzeLoserBestProperties()
         {
             Dictionary<String, int> dict = DataAccess.GetLoserPropertyRevenue(_playerAmount); ;
             List<int> flattenList = dict.Values.ToList();
-            // chose orderby (instead of orderbydescending because its the lowest landed which are more interesting i think
-            var firstFiveArrivals = flattenList.OrderBy(i => i).Take(5);
+            var firstFiveArrivals = (from t in flattenList
+                                     orderby t
+                                     select t).Take(5);
 
             Debug.WriteLine("Loser");
             foreach (int i in firstFiveArrivals)
@@ -196,20 +232,15 @@ namespace MonopolyAnalysis
                 var myKey = dict.FirstOrDefault(x => x.Value == i).Key;
                 Debug.WriteLine($"I from dic : {i} and property : {myKey}");
             }
-
-
-            //foreach (KeyValuePair<string, int> item in dict)
-            //{
-            //    Debug.WriteLine("Key: {0}, Value: {1}", item.Key, item.Value);
-            //}
         }
 
         private void AnalyzeTotalBestProperties()
         {
             Dictionary<String, int> dict = DataAccess.GetAllPropertyRevenue(_playerAmount);
             List<int> flattenList = dict.Values.ToList();
-            // chose orderby (instead of orderbydescending because its the lowest landed which are more interesting i think
-            var firstFiveArrivals = flattenList.OrderByDescending(i => i).Take(1);
+            var firstFiveArrivals = (from t in flattenList
+                                     orderby t descending
+                                     select t).Take(1);
 
             Debug.WriteLine("All");
             foreach (int i in firstFiveArrivals)
