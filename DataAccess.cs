@@ -447,7 +447,9 @@ namespace MonopolyAnalysis
                         {
                             while (reader.Read())
                             {
-                                allWinnerRolls.Add(reader.GetInt32(0));
+                                int num = reader.GetInt32(0);
+                                Debug.WriteLine(num);
+                                allWinnerRolls.Add(num);
                             }
                         }
                     }

@@ -10,16 +10,86 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Background="#FF726DA8">
-        
         <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="49*"/>
-                <ColumnDefinition Width="201*"/>
-            </Grid.ColumnDefinitions>
-            <Button Click="NavigateToSimulaitonPage" Content="Simulation" Width="80" Margin="10,0,0,0" />
-            <Button Content="Analysis" Width="80" Margin="100,0,0,0" />
-            <Button Click="NavigateToAboutPage" Content="About" Width="80" Margin="190,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Width="800" Margin="335.9,0,216,0" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.ZIndex="2">
+                <Button Click="NavigateToSimulaitonPage" Content="Simulation" Width="90" Height="32" />
+                <Button Content="Analysis" Width="80" Height="32" Margin="10,0,10,0" />
+                <Button Click="NavigateToAboutPage" Content="About" Width="80" Height="32"/>
+            </StackPanel>
         </Grid>
-        <TextBlock x:Name="title" Text="Analysis" Margin="10,65,-10,-65" />
+        <TextBlock x:Name="title" Text="Analysis" Margin="10,75,-10,-47" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10" ViewChanged="ScrollViewer_ViewChanged">
+            <Grid>
+                <StackPanel Orientation="Vertical" Width="800" Margin="205,60,216,337">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FocusVisualPrimaryBrush="Black" FontSize="24" FontFamily="Arial Black" HorizontalAlignment="Left" >4 Player game analysis</TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name = "textBlock33" Margin = "0,10,0,10" Text = "Player amount" Width="330" FontSize="14" />
+                        <TextBlock x:Name = "textBlocke33" Margin = "0,10,10,10" Text = "Record amount" FontSize="14" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "2 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="twoPlayersRecordAmount" Margin = "0,10,50,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "3 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="threePlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "4 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="fourPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "5 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="fivePlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "6 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="sixPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "7 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="sevenPlayersRecordAmount" Margin = "0,10,20,10" Text = "300" FontSize="14" HorizontalAlignment="Right" Width="100" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                        <TextBlock Margin = "0,10,0,10" Text = "8 players" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="330" FontSize="14" />
+                        <TextBlock x:Name="eightPlayersRecordAmount" Margin = "0,10,0,10" Text = "300" FontSize="14" Width="100" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="216,443,216,63" Width="800">
+                    <!--<StackPanel Orientation="Horizontal">
+                        <TextBlock FocusVisualPrimaryBrush="Black" FontSize="24" FontFamily="Arial Black" HorizontalAlignment="Left">Top 5 properties common amongst winner</TextBlock>
+                    </StackPanel>-->
+
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name = "playerAmountLabel" Margin = "0,10,0,10" Text = "Players: 2" Width="330" Height="22" FontSize="14" />
+                        <Slider x:Name = "playerAmountSlider"  Minimum = "2" Maximum = "8"
+            TickFrequency = "1" TickPlacement = "BottomRight"
+            ValueChanged = "PlayerAmountSlider_ValueChanged" Margin = "0,10,10,10" Width="450"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock Margin = "0,10,0,10" Text = "Multi-Threaded exection" Width="330" Height="20" FontSize="14"  />
+                        <CheckBox x:Name = "multiThreadedExecution" Click="MultiThreadedExecutionCheckbox_Click" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                            <TextBlock x:Name = "simulationProgress" Text="Progress" Margin = "0,10,60,10" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="353"  />
+                            <ProgressRing Name="splashProgressRing" IsActive="False" Width="20" HorizontalAlignment="Center"></ProgressRing>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Width="657" HorizontalAlignment="Right" VerticalAlignment="Stretch" >
+                            <TextBlock x:Name = "simulationTime" Margin = "50,10,60,10" Text = "Time elapsed" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Stretch" Width="102"  />
+                            <!--<Button x:Name = "simulationButton" Content="Start simulations" Click="StartAnalysisHandler" VerticalAlignment="Stretch" Width="154" />-->
+                            <Button  x:Name = "simulationButton" Content="Start analyzing" VerticalAlignment="Top" Click="StartAnalysisHandler" Width="154"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <Button Content="Button" Margin="1297,205,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+
+
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>
