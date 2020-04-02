@@ -14,14 +14,14 @@ namespace MonopolyAnalysis
 {
     public static class DataAccess
     {
-        static readonly string dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+        static readonly string _dbpath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "monopolyDatabase.db");
+        static readonly SqliteConnection _sqlConnection = new SqliteConnection($"Filename={_dbpath}");
         public async static void InitializeDatabase()
         {
             await ApplicationData.Current.LocalFolder.CreateFileAsync("monopolyDatabase.db", CreationCollisionOption.OpenIfExists);
-            using (SqliteConnection db =
-               new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 String gameMoveTable = "CREATE TABLE IF NOT EXISTS GameMove ( " +
                       "GameMoveID INTEGER PRIMARY KEY," +
@@ -108,19 +108,19 @@ namespace MonopolyAnalysis
 
                 foreach (string tableCommand in commandStrings)
                 {
-                    SqliteCommand createTable = new SqliteCommand(tableCommand, db);
+                    SqliteCommand createTable = new SqliteCommand(tableCommand, _sqlConnection);
 
                     createTable.ExecuteReader();
                 }
+                _sqlConnection.Close();
             }
         }
 
         public static void DropAllTables()
         {
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 List<String> commandStrings = new List<string>
                 {
@@ -134,12 +134,12 @@ namespace MonopolyAnalysis
 
                 foreach (string tableCommand in commandStrings)
                 {
-                    SqliteCommand createTable = new SqliteCommand(tableCommand, db);
+                    SqliteCommand createTable = new SqliteCommand(tableCommand, _sqlConnection);
 
                     createTable.ExecuteReader();
                 }
 
-                db.Close();
+                _sqlConnection.Close();
             }
         }
 
@@ -187,13 +187,12 @@ namespace MonopolyAnalysis
 
         public static void AddFieldGroupColor(String color)
         {
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 SqliteCommand insertCommand = new SqliteCommand();
-                insertCommand.Connection = db;
+                insertCommand.Connection = _sqlConnection;
 
                 insertCommand.CommandText = "INSERT INTO PropertyGroup VALUES (NULL, @Color);";
                 insertCommand.Parameters.AddWithValue("@Color", color);
@@ -211,20 +210,19 @@ namespace MonopolyAnalysis
                 }
                 finally
                 {
-                    db.Close();
+                    _sqlConnection.Close();
                 }
             }
         }
 
         public static void AddField(String name, String color)
         {
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 SqliteCommand insertCommand = new SqliteCommand();
-                insertCommand.Connection = db;
+                insertCommand.Connection = _sqlConnection;
 
                 insertCommand.CommandText = "INSERT INTO Property (PropertyName, PropertyGroupID) SELECT @Name, PropertyGroupID FROM PropertyGroup WHERE Color LIKE @Color;";
                 insertCommand.Parameters.AddWithValue("@Name", name);
@@ -236,14 +234,11 @@ namespace MonopolyAnalysis
                 }
                 catch (SqliteException ex)
                 {
-                    Debug.WriteLine("Inner Exception: " + ex.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + insertCommand.CommandText);
-                    Debug.WriteLine("");
+                    
                 }
                 finally
                 {
-                    db.Close();
+                    _sqlConnection.Close();
                 }
             }
         }
@@ -252,13 +247,12 @@ namespace MonopolyAnalysis
         {
             List<String> entries = new List<string>();
 
-            using (SqliteConnection db =
-               new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 SqliteCommand selectCommand = new SqliteCommand
-                    ("SELECT Color from FieldGroup", db);
+                    ("SELECT Color from FieldGroup", _sqlConnection);
 
                 SqliteDataReader query = selectCommand.ExecuteReader();
 
@@ -267,7 +261,7 @@ namespace MonopolyAnalysis
                     entries.Add(query.GetString(0));
                 }
 
-                db.Close();
+                _sqlConnection.Close();
             }
 
             return entries;
@@ -276,10 +270,9 @@ namespace MonopolyAnalysis
         public static void SaveGameData(List<GameResult> gameResults)
         {
 
-            using (SqliteConnection db =
-               new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
 
 
@@ -289,8 +282,8 @@ namespace MonopolyAnalysis
                     index++;
                     SqliteCommand command = new SqliteCommand();
                     SqliteCommand selectCommand = new SqliteCommand();
-                    command.Connection = db;
-                    SqliteTransaction transaction = db.BeginTransaction();
+                    command.Connection = _sqlConnection;
+                    SqliteTransaction transaction = _sqlConnection.BeginTransaction();
                     command.Transaction = transaction;
                     try
                     {
@@ -301,7 +294,7 @@ namespace MonopolyAnalysis
                         int[] players = new int[playerAmount];
                         command.CommandText = "Insert Into Game (Name) VALUES ('Game')";
                         command.ExecuteNonQuery();
-                        selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", db);
+                        selectCommand = new SqliteCommand("SELECT GameID FROM Game ORDER BY GameID DESC LIMIT 1;", _sqlConnection);
                         selectCommand.Transaction = transaction;
                         SqliteDataReader gameResult = selectCommand.ExecuteReader();
                         int gameID = 0;
@@ -353,33 +346,33 @@ namespace MonopolyAnalysis
                     catch (Exception e)
                     {
                         transaction.Rollback();
-                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("SaveGameData Inner Exception: " + e.Message);
                         Debug.WriteLine("");
                         Debug.WriteLine("Query Executed: " + command.CommandText);
                         Debug.WriteLine("");
-                    } finally
+                    }
+                    finally
                     {
                         Debug.WriteLine("Done " + index);
                     }
-                    
+
 
 
                 }
-                db.Close();
+                _sqlConnection.Close();
             }
-            
+
         }
 
         public static int GetNumberOfStoredGames(int numberPlayers)
         {
             int count = 0;
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            using (_sqlConnection)
             {
-                db.Open();
+                _sqlConnection.Open();
 
                 SqliteCommand selectAmountCommand = new SqliteCommand();
-                selectAmountCommand.Connection = db;
+                selectAmountCommand.Connection = _sqlConnection;
 
                 try
                 {
@@ -409,7 +402,7 @@ namespace MonopolyAnalysis
                 }
                 finally
                 {
-                    db.Close();
+                    _sqlConnection.Close();
                 }
             }
             return count;
@@ -421,26 +414,19 @@ namespace MonopolyAnalysis
             stopWatch.Start();
             List<int> allWinnerRolls = new List<int>();
             List<int> allGames = GetAllGameIDs(numberPlayers);
-            
-            using (SqliteConnection db =
-                  new SqliteConnection($"Filename={dbpath}"))
+
+            using (_sqlConnection)
             {
-                db.Open();
                 foreach (int id in allGames)
-            {
-                int winnerID = GetWinnerIDOfGame(id);
-                
-
-                
-
+                {
+                    int winnerID = GetWinnerIDOfGame(id);
+                    _sqlConnection.Open();
                     SqliteCommand selectDiceRoll = new SqliteCommand();
-                    selectDiceRoll.Connection = db;
+                    selectDiceRoll.Connection = _sqlConnection;
 
-                    try
-                    {
+                    try {
 
                         selectDiceRoll.CommandText = $"Select DiceRoll From GameMove Where PlayerID = {winnerID}";
-
                         using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
                         {
                             while (reader.Read())
@@ -452,51 +438,200 @@ namespace MonopolyAnalysis
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("GetNumberOfStoredGames Inner Exception: " + e.Message);
                         Debug.WriteLine("");
                         Debug.WriteLine("Query Executed: " + selectDiceRoll.CommandText);
                         Debug.WriteLine("");
                     }
                     finally
                     {
-                        
+                        _sqlConnection.Close();
                     }
+
                 }
-                db.Close();
             }
 
-            stopWatch.Stop();
-            // Get the elapsed time as a TimeSpan value.
-            TimeSpan ts = stopWatch.Elapsed;
-            Debug.WriteLine(ts);
-            return allWinnerRolls;
-        }
+                stopWatch.Stop();
+                // Get the elapsed time as a TimeSpan value.
+                TimeSpan ts = stopWatch.Elapsed;
+                Debug.WriteLine(ts);
+                return allWinnerRolls;
+            }
 
-        public static List<int> GetRollsOfLosers(int numberPlayers)
-        {
-            List<int> allLoserRolls = new List<int>();
-            List<int> allGames = GetAllGameIDs(numberPlayers);
-            foreach (int id in allGames)
+            public static List<int> GetRollsOfLosers(int numberPlayers)
             {
-                int loserID = GetLoserIDOfGame(id);
-
-                using (SqliteConnection db =
-                  new SqliteConnection($"Filename={dbpath}"))
+                List<int> allLoserRolls = new List<int>();
+                List<int> allGames = GetAllGameIDs(numberPlayers);
+                foreach (int id in allGames)
                 {
-                    db.Open();
+                    int loserID = GetLoserIDOfGame(id);
 
-                    SqliteCommand selectDiceRoll = new SqliteCommand();
+                    using (_sqlConnection)
+                    {
+                        _sqlConnection.Open();
+
+                        SqliteCommand selectDiceRoll = new SqliteCommand();
+
+                        try
+                        {
+                            selectDiceRoll.CommandText = $"Select DiceRoll From GameMove Where PlayerID = {loserID}";
+                            selectDiceRoll.Connection = _sqlConnection;
+
+                            using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    allLoserRolls.Add(reader.GetInt32(0));
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine("GetRollsOfLosers Inner Exception: " + e.Message);
+                            Debug.WriteLine("");
+                            Debug.WriteLine("Query Executed: " + selectDiceRoll.CommandText);
+                            Debug.WriteLine("");
+                        }
+                        finally
+                        {
+                            _sqlConnection.Close();
+                        }
+                    }
+                }
+                return allLoserRolls;
+            }
+
+            public static Dictionary<String, int> GetWinnerPropertyRevenue(int numberPlayers)
+            {
+                List<int> gameIDs = GetAllGameIDs(numberPlayers);
+                Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "winner");
+                return revenuePerProperty;
+            }
+            public static Dictionary<String, int> GetLoserPropertyRevenue(int numberPlayers)
+            {
+                List<int> gameIDs = GetAllGameIDs(numberPlayers);
+
+                Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "looser");
+                return revenuePerProperty;
+            }
+
+            public static Dictionary<String, int> GetAllPropertyRevenue(int numberPlayers)
+            {
+                List<int> gameIDs = GetAllGameIDs(numberPlayers);
+
+                Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "all");
+                return revenuePerProperty;
+            }
+
+            private static Dictionary<String, int> GetPropertyRevenues(List<int> gameIDs, String type)
+            {
+                Dictionary<String, int> revenuePerProperty = new Dictionary<string, int>();
+                SqliteCommand selectRevenue = new SqliteCommand();
+                using (_sqlConnection)
+                {
+                    try
+                    {
+                        List<int> playerIDs = new List<int>();
+                        Dictionary<int, int> propertyValueIDs = new Dictionary<int, int>();
+                        foreach (int gameID in gameIDs)
+                        {
+                            String playerIDsString = "";
+                            switch (type)
+                            {
+                                case "winner":
+                                    playerIDs = new List<int>();
+                                    playerIDs.Add(GetWinnerIDOfGame(gameID));
+                                    break;
+                                case "looser":
+                                    playerIDs = new List<int>();
+                                    playerIDs.Add(GetLoserIDOfGame(gameID));
+                                    break;
+                                case "all":
+                                    playerIDs = GetAllPlayerIDsOfGame(gameID);
+                                    break;
+                            }
+
+                            for (int i = 0; i < playerIDs.Count; i++)
+                            {
+                                playerIDsString += playerIDs[i].ToString();
+                                if (i != playerIDs.Count - 1)
+                                {
+                                    playerIDsString += ", ";
+                                }
+                            }
+
+                            _sqlConnection.Open();
+                            selectRevenue.CommandText =
+                                $"Select PropertyLandedOn, MoneySpend " +
+                                $"From GameMove " +
+                                $"WHERE GameID = {gameID} AND " +
+                                $"PropertyLandedOn IN ( " +
+                                    $"Select PropertyID From PlayerProperties " +
+                                    $"WHERE PlayerID IN ({playerIDsString}))";
+                            selectRevenue.Connection = _sqlConnection;
+
+
+                            using (SqliteDataReader reader = selectRevenue.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    int value;
+                                    if (propertyValueIDs.TryGetValue(reader.GetInt32(0), out value))
+                                    {
+                                        propertyValueIDs[reader.GetInt32(0)] = value + reader.GetInt32(1);
+                                    }
+                                    else
+                                    {
+                                        propertyValueIDs.TryAdd(reader.GetInt32(0), reader.GetInt32(1));
+                                    }
+                                }
+
+                            }
+                        }
+
+                        Debug.Print(propertyValueIDs.ToString());
+
+                        foreach (KeyValuePair<int, int> entry in propertyValueIDs)
+                        {
+                            String propertyName = GetPropertyNameByID(entry.Key);
+                            revenuePerProperty.TryAdd(propertyName, entry.Value);
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectRevenue.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        _sqlConnection.Close();
+                    }
+                }
+
+                return revenuePerProperty;
+            }
+
+            private static List<int> GetAllGameIDs(int numberPlayers)
+            {
+                List<int> allGameIDs = new List<int>();
+                using (_sqlConnection)
+                {
+                    _sqlConnection.Open();
+                    SqliteCommand command = new SqliteCommand(
+                                        "Select GameID FROM Player Group By GameID " +
+                                       $"having Count(PlayerID) = { numberPlayers}");
+                    command.Connection = _sqlConnection;
 
                     try
                     {
-                        selectDiceRoll.CommandText = $"Select DiceRoll From GameMove Where PlayerID = {loserID}";
-                        selectDiceRoll.Connection = db;
-
-                        using (SqliteDataReader reader = selectDiceRoll.ExecuteReader())
+                        using (SqliteDataReader reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                allLoserRolls.Add(reader.GetInt32(0));
+                                allGameIDs.Add(reader.GetInt32(0));
                             }
                         }
                     }
@@ -504,316 +639,160 @@ namespace MonopolyAnalysis
                     {
                         Debug.WriteLine("Inner Exception: " + e.Message);
                         Debug.WriteLine("");
-                        Debug.WriteLine("Query Executed: " + selectDiceRoll.CommandText);
+                        Debug.WriteLine("Query Executed: " + command.CommandText);
                         Debug.WriteLine("");
                     }
                     finally
                     {
-                        db.Close();
+                        _sqlConnection.Close();
                     }
+
                 }
+                return allGameIDs;
             }
-            return allLoserRolls;
-        }
 
-        public static Dictionary<String, int> GetWinnerPropertyRevenue(int numberPlayers)
-        {
-            List<int> gameIDs = GetAllGameIDs(numberPlayers);
-            Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "winner");
-            return revenuePerProperty;
-        }
-        public static Dictionary<String, int> GetLoserPropertyRevenue(int numberPlayers)
-        {
-            List<int> gameIDs = GetAllGameIDs(numberPlayers);
-
-            Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "looser");
-            return revenuePerProperty;
-        }
-
-        public static Dictionary<String, int> GetAllPropertyRevenue(int numberPlayers)
-        {
-            List<int> gameIDs = GetAllGameIDs(numberPlayers);
-
-            Dictionary<String, int> revenuePerProperty = GetPropertyRevenues(gameIDs, "all");
-            return revenuePerProperty;
-        }
-
-        private static Dictionary<String, int> GetPropertyRevenues(List<int> gameIDs, String type)
-        {
-            Dictionary<String, int> revenuePerProperty = new Dictionary<string, int>();
-            SqliteCommand selectRevenue = new SqliteCommand();
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            private static int GetWinnerIDOfGame(int gameID)
             {
-                try
+                int winnerID = -1;
+
+                using (_sqlConnection)
                 {
-                    List<int> playerIDs = new List<int>();
-                    Dictionary<int, int> propertyValueIDs = new Dictionary<int, int>();
-                    foreach (int gameID in gameIDs)
+                    _sqlConnection.Open();
+                    SqliteCommand selectWinnerIDs = new SqliteCommand(
+                        $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney DESC LIMIT 1");
+                    selectWinnerIDs.Connection = _sqlConnection;
+
+                    try
                     {
-                        String playerIDsString = "";
-                        switch (type)
-                        {
-                            case "winner":
-                                playerIDs = new List<int>();
-                                playerIDs.Add(GetWinnerIDOfGame(gameID));
-                                break;
-                            case "looser":
-                                playerIDs = new List<int>();
-                                playerIDs.Add(GetLoserIDOfGame(gameID));
-                                break;
-                            case "all":
-                                playerIDs = GetAllPlayerIDsOfGame(gameID);
-                                break;
-                        }
-
-                        for (int i = 0; i < playerIDs.Count; i++)
-                        {
-                            playerIDsString += playerIDs[i].ToString();
-                            if (i != playerIDs.Count - 1)
-                            {
-                                playerIDsString += ", ";
-                            }
-                        }
-
-                        db.Open();
-                        selectRevenue.CommandText =
-                            $"Select PropertyLandedOn, MoneySpend " +
-                            $"From GameMove " +
-                            $"WHERE GameID = {gameID} AND " +
-                            $"PropertyLandedOn IN ( " +
-                                $"Select PropertyID From PlayerProperties " +
-                                $"WHERE PlayerID IN ({playerIDsString}))";
-                        selectRevenue.Connection = db;
-
-
-                        using (SqliteDataReader reader = selectRevenue.ExecuteReader())
+                        using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                int value;
-                                if (propertyValueIDs.TryGetValue(reader.GetInt32(0), out value))
-                                {
-                                    propertyValueIDs[reader.GetInt32(0)] = value + reader.GetInt32(1);
-                                }
-                                else
-                                {
-                                    propertyValueIDs.TryAdd(reader.GetInt32(0), reader.GetInt32(1));
-                                }
+                                winnerID = reader.GetInt32(0);
                             }
-
                         }
                     }
-
-                    Debug.Print(propertyValueIDs.ToString());
-
-                    foreach (KeyValuePair<int, int> entry in propertyValueIDs)
+                    catch (Exception e)
                     {
-                        String propertyName = GetPropertyNameByID(entry.Key);
-                        revenuePerProperty.TryAdd(propertyName, entry.Value);
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
+                        Debug.WriteLine("");
                     }
-
+                    finally
+                    {
+                        _sqlConnection.Close();
+                    }
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + selectRevenue.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
+                return winnerID;
             }
 
-            return revenuePerProperty;
-        }
-
-        private static List<int> GetAllGameIDs(int numberPlayers)
-        {
-            List<int> allGameIDs = new List<int>();
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            private static int GetLoserIDOfGame(int gameID)
             {
-                db.Open();
-                SqliteCommand command = new SqliteCommand(
-                                    "Select GameID FROM Player Group By GameID " +
-                                   $"having Count(PlayerID) = { numberPlayers}");
-                command.Connection = db;
+                int loserID = -1;
 
-                try
+                using (_sqlConnection)
                 {
-                    using (SqliteDataReader reader = command.ExecuteReader())
+                    _sqlConnection.Open();
+                    SqliteCommand selectWinnerIDs = new SqliteCommand(
+                        $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney ASC LIMIT 1");
+                    selectWinnerIDs.Connection = _sqlConnection;
+
+                    try
                     {
-                        while (reader.Read())
+                        using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
                         {
-                            allGameIDs.Add(reader.GetInt32(0));
+                            while (reader.Read())
+                            {
+                                loserID = reader.GetInt32(0);
+                            }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        _sqlConnection.Close();
+                    }
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + command.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
-
+                return loserID;
             }
-            return allGameIDs;
-        }
 
-        private static int GetWinnerIDOfGame(int gameID)
-        {
-            int winnerID = -1;
-
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            private static List<int> GetAllPlayerIDsOfGame(int gameID)
             {
-                db.Open();
-                SqliteCommand selectWinnerIDs = new SqliteCommand(
-                    $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney DESC LIMIT 1");
-                selectWinnerIDs.Connection = db;
-
-                try
+                List<int> playerIDs = new List<int>();
+                using (_sqlConnection)
                 {
-                    using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
+                    _sqlConnection.Open();
+                    SqliteCommand selectWinnerIDs = new SqliteCommand(
+                        $"Select PlayerID From Player WHERE GameID = {gameID}");
+                    selectWinnerIDs.Connection = _sqlConnection;
+
+                    try
                     {
-                        while (reader.Read())
+                        using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
                         {
-                            winnerID = reader.GetInt32(0);
+                            while (reader.Read())
+                            {
+                                playerIDs.Add(reader.GetInt32(0));
+                            }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
+                        Debug.WriteLine("");
+                    }
+                    finally
+                    {
+                        _sqlConnection.Close();
+                    }
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
+
+                return playerIDs;
             }
-            return winnerID;
-        }
 
-        private static int GetLoserIDOfGame(int gameID)
-        {
-            int loserID = -1;
-
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
+            private static String GetPropertyNameByID(int propertyID)
             {
-                db.Open();
-                SqliteCommand selectWinnerIDs = new SqliteCommand(
-                    $"Select PlayerID From Player Where GameID = {gameID} ORDER BY FinalTotalMoney ASC LIMIT 1");
-                selectWinnerIDs.Connection = db;
-
-                try
+                String propertyName = "";
+                using (_sqlConnection)
                 {
-                    using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
+                    _sqlConnection.Open();
+                    SqliteCommand command = new SqliteCommand(
+                                        $"Select PropertyName FROM Property Where PropertyID = {propertyID} ");
+                    command.Connection = _sqlConnection;
+
+                    try
                     {
-                        while (reader.Read())
+                        using (SqliteDataReader reader = command.ExecuteReader())
                         {
-                            loserID = reader.GetInt32(0);
+                            while (reader.Read())
+                            {
+                                propertyName = reader.GetString(0);
+                            }
                         }
                     }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
-            }
-            return loserID;
-        }
-
-        private static List<int> GetAllPlayerIDsOfGame(int gameID)
-        {
-            List<int> playerIDs = new List<int>();
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
-            {
-                db.Open();
-                SqliteCommand selectWinnerIDs = new SqliteCommand(
-                    $"Select PlayerID From Player WHERE GameID = {gameID}");
-                selectWinnerIDs.Connection = db;
-
-                try
-                {
-                    using (SqliteDataReader reader = selectWinnerIDs.ExecuteReader())
+                    catch (Exception e)
                     {
-                        while (reader.Read())
-                        {
-                            playerIDs.Add(reader.GetInt32(0));
-                        }
+                        Debug.WriteLine("Inner Exception: " + e.Message);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Query Executed: " + command.CommandText);
+                        Debug.WriteLine("");
                     }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + selectWinnerIDs.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
-            }
-
-            return playerIDs;
-        }
-
-        private static String GetPropertyNameByID(int propertyID)
-        {
-            String propertyName = "";
-            using (SqliteConnection db =
-              new SqliteConnection($"Filename={dbpath}"))
-            {
-                db.Open();
-                SqliteCommand command = new SqliteCommand(
-                                    $"Select PropertyName FROM Property Where PropertyID = {propertyID} ");
-                command.Connection = db;
-
-                try
-                {
-                    using (SqliteDataReader reader = command.ExecuteReader())
+                    finally
                     {
-                        while (reader.Read())
-                        {
-                            propertyName = reader.GetString(0);
-                        }
+                        _sqlConnection.Close();
                     }
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("Inner Exception: " + e.Message);
-                    Debug.WriteLine("");
-                    Debug.WriteLine("Query Executed: " + command.CommandText);
-                    Debug.WriteLine("");
-                }
-                finally
-                {
-                    db.Close();
-                }
 
+                }
+                return propertyName;
             }
-            return propertyName;
         }
     }
-}
