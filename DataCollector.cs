@@ -14,16 +14,20 @@ namespace MonopolyAnalysis
         private Board _board;
         private List<Move> _moves = new List<Move>();
         private int _playerAmount;
+        private List<int> _roundAmounts = new List<int>();
 
         public DataCollector(int playerAmount)
         {
             _playerAmount = playerAmount;
+            FillRoundAmounts();
             _program = new Monopoly.Program();
         }
 
         public void Start()
         {
-            _board = _program.StartGame(_playerAmount, 60, this);
+            int roundAmount = _roundAmounts[_playerAmount];
+
+            _board = _program.StartGame(_playerAmount, roundAmount, this);
             onSimulationComplete();
         }
 
@@ -39,6 +43,16 @@ namespace MonopolyAnalysis
                 SimulationComplete(this, _moves, _playerAmount, _board);
             }
         }
-       
+
+        private void FillRoundAmounts()
+        {
+            _roundAmounts.Add(0);
+            _roundAmounts.Add(0);
+            for (int i = 90; i >= 60; i -= 5)
+            {
+                _roundAmounts.Add(i);
+            }
+        }
+
     }
 }

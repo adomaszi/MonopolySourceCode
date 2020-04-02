@@ -37,13 +37,13 @@ namespace MonopolyAnalysis
         private int _asyncSimulationCounter = 1;
         private double _processorCountValue;
         private List<GameResult> _gameResults = new List<GameResult>();
-
         public SimulationPage()
         {
             this.InitializeComponent();
-
+            
             UpdateRecordCount();
         }
+        
 
         private void NavigateToAnalysisPage(object sender, RoutedEventArgs e)
         {
@@ -54,11 +54,12 @@ namespace MonopolyAnalysis
         {
             this.Frame.Navigate(typeof(AboutPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
-
+        
         private void PlayerAmountSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             int sliderValue = Convert.ToInt32(e.NewValue);
             _playerAmount = sliderValue;
+        
             string labelText = String.Format("Amount of players: {0}", _playerAmount);
 
             if (this.playerAmountLabel != null)
