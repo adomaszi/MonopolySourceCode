@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Appointments;
 using System.Threading.Tasks;
+using System.Threading;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace MonopolyAnalysis
@@ -27,24 +28,21 @@ namespace MonopolyAnalysis
     /// </summary>
     public sealed partial class AnalysisPage : Page
     {
-        string _databaseConnectionString;
-        // Analyser analyser;
-        IEnumerable<Move> moves;
-        IEnumerable<Player> _players;
-
         private int _playerAmount = 2;
         private bool _isMultiThreadedExecution = false;
+
+        private static Mutex _asyncAnalysisCounterMutex = new Mutex();
+        private int _asyncAnalysisCounter = 1;
 
         public AnalysisPage()
         {
             this.InitializeComponent();
-            Debug.Write("Analyse init ======================================");
         }
 
 
         private void StartAnalysisHandler(object sender, RoutedEventArgs e)
         {
-
+            UpdateProgressRing(true);
             if (_isMultiThreadedExecution)
             {
                 MultiThreadedAnalysis();
@@ -121,7 +119,6 @@ namespace MonopolyAnalysis
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Debug.WriteLine(elapsedTime);
                 analysisTime.Text = elapsedTime;
             });
         }
@@ -271,7 +268,6 @@ namespace MonopolyAnalysis
                                     select t).Take(1);
             }
 
-            Debug.WriteLine("All");
             foreach (int i in mostLandedOnProperty)
             {
                 var mostLandedOn = dict.FirstOrDefault(x => x.Value == i).Key;
@@ -288,11 +284,6 @@ namespace MonopolyAnalysis
         private void NavigateToAboutPage(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AboutPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
-        }
-
-        private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
-        {
-
         }
 
         private void MultiThreadedExecutionCheckbox_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -316,6 +307,7 @@ namespace MonopolyAnalysis
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
                 AverageRollWinner.Text = diceRoll.ToString();
+                IsDone();
             });
         }
 
@@ -323,13 +315,17 @@ namespace MonopolyAnalysis
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
                 AverageRollLoser.Text = diceRoll.ToString();
+                IsDone();
             });
         }
 
-        private async void updateMostLandedOnField(String mostLandedOn, int average)
+        private async void updateMostLandedOnField(String mostLandedOn, int landedOnAmount)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
-                MostLandedOnProperty.Text = "The most landed on property was " + mostLandedOn + " on which players landed on " + average + " times on average.";
+                int gameAmount = DataAccess.GetNumberOfStoredGames(_playerAmount);
+                
+                MostLandedOnProperty.Text = String.Format("{0} road was the field that was most landed on in general. In {1} games players landed on it {2} times", mostLandedOn, gameAmount, landedOnAmount);
+                IsDone();
             });
         }
 
@@ -366,6 +362,7 @@ namespace MonopolyAnalysis
                     }
                     counter++;
                 }
+                IsDone();
             });
         }
 
@@ -402,6 +399,29 @@ namespace MonopolyAnalysis
                     }
                     counter++;
                 }
+                IsDone();
+            });
+        }
+
+        private void IsDone()
+        {
+            if (_asyncAnalysisCounter != 5)
+            {
+                _asyncAnalysisCounterMutex.WaitOne();
+                _asyncAnalysisCounter++;
+                _asyncAnalysisCounterMutex.ReleaseMutex();
+            }
+            else
+            {
+                UpdateProgressRing(false);
+            }
+        }
+
+        async private void UpdateProgressRing(bool isActive)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                splashProgressRing.IsActive = isActive;
             });
         }
     }

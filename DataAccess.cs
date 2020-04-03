@@ -348,13 +348,6 @@ namespace MonopolyAnalysis
                         Debug.WriteLine("Query Executed: " + command.CommandText);
                         Debug.WriteLine("");
                     }
-                    finally
-                    {
-                        Debug.WriteLine("Done " + index);
-                    }
-
-
-
                 }
                 sqlConnection.Close();
             }
@@ -451,7 +444,6 @@ namespace MonopolyAnalysis
                 stopWatch.Stop();
                 // Get the elapsed time as a TimeSpan value.
                 TimeSpan ts = stopWatch.Elapsed;
-                Debug.WriteLine(ts);
                 return allWinnerRolls;
             }
 
@@ -653,8 +645,6 @@ namespace MonopolyAnalysis
 
                             }
                         }
-
-                        Debug.Print(propertyValueIDs.ToString());
 
                         foreach (KeyValuePair<int, int> entry in propertyValueIDs)
                         {

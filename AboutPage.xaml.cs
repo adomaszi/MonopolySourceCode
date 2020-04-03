@@ -36,15 +36,5 @@ namespace MonopolyAnalysis
         {
             this.Frame.Navigate(typeof(SimulationPage), null, new Windows.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
         }
-
-        private void title_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void TextBlock_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

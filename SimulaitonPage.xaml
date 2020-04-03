@@ -12,20 +12,41 @@
 
 
     <Grid Background="#FF726DA8">
-
-
-        <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
-            <StackPanel Orientation="Horizontal" Width="800" Margin="335.9,0,216,0" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.ZIndex="2">
-                <Button Content="Simulation" Width="90" Height="32" />
-                <Button Click="NavigateToAnalysisPage" Content="Analysis" Width="80" Height="32" Margin="10,0,10,0" />
-                <Button Click="NavigateToAboutPage" Content="About" Width="80" Height="32"/>
+        <Grid Background="#4CF40E0E"
+              Height="60"
+              VerticalAlignment="Top"
+              Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal"
+                        Width="800"
+                        Margin="335.9,0,216,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Canvas.ZIndex="2">
+                <Button Content="Simulation"
+                        Width="90"
+                        Height="32" />
+                <Button Click="NavigateToAnalysisPage"
+                        Content="Analysis"
+                        Width="80"
+                        Height="32"
+                        Margin="10,0,10,0" />
+                <Button Click="NavigateToAboutPage"
+                        Content="About"
+                        Width="80"
+                        Height="32" />
             </StackPanel>
         </Grid>
-        <TextBlock x:Name="title" Text="Simulation" Margin="10,75,-10,-47" />
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10" ViewChanged="ScrollViewer_ViewChanged">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10">
+            
             <Grid>
-
-                <StackPanel Orientation="Vertical" Width="800" Margin="205,60,216,337">
+                <TextBlock Text="Simulation"
+                           FontSize="30"
+                           HorizontalAlignment="Center"
+                           Padding="0, 30, 0, 30" />
+                <StackPanel Orientation="Vertical"
+                            Width="800"
+                            Margin="205,60,216,337">
+                    
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FocusVisualPrimaryBrush="Black" FontSize="24" FontFamily="Arial Black" HorizontalAlignment="Left" >Record count</TextBlock>
                     </StackPanel>

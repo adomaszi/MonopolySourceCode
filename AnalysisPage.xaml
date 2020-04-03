@@ -10,16 +10,36 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Background="#FF726DA8">
-        <Grid Background="#4CF40E0E" Height="60" VerticalAlignment="Top" Grid.ColumnSpan="2">
-            <StackPanel Orientation="Horizontal" Width="800" Margin="335.9,0,216,0" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.ZIndex="2">
-                <Button Click="NavigateToSimulaitonPage" Content="Simulation" Width="90" Height="32" />
-                <Button Content="Analysis" Width="80" Height="32" Margin="10,0,10,0" />
-                <Button Click="NavigateToAboutPage" Content="About" Width="80" Height="32"/>
+        <Grid Background="#4CF40E0E"
+              Height="60"
+              VerticalAlignment="Top"
+              Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal"
+                        Width="800"
+                        Margin="335.9,0,216,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Canvas.ZIndex="2">
+                <Button Click="NavigateToSimulaitonPage"
+                        Content="Simulation"
+                        Width="90"
+                        Height="32" />
+                <Button Content="Analysis"
+                        Width="80"
+                        Height="32"
+                        Margin="10,0,10,0" />
+                <Button Click="NavigateToAboutPage"
+                        Content="About"
+                        Width="80"
+                        Height="32" />
             </StackPanel>
         </Grid>
-        <TextBlock x:Name="title" Text="Analysis" Margin="10,75,-10,-47" />
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10" ViewChanged="ScrollViewer_ViewChanged">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="-10,65,10,10">
             <Grid>
+                <TextBlock Text="Analysis"
+                           FontSize="30"
+                           HorizontalAlignment="Center"
+                           Padding="0, 30, 0, 30" />
                 <StackPanel Orientation="Vertical" Width="800" Margin="205,60,216,337">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FocusVisualPrimaryBrush="Black" FontSize="24" FontFamily="Arial Black" HorizontalAlignment="Left" >Player game analysis</TextBlock>
@@ -33,7 +53,7 @@
                                 </StackPanel>
 
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,10,0,10" HorizontalAlignment="Stretch" Width="275" >Average roll: </TextBlock>
+                                    <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,10,0,10" HorizontalAlignment="Stretch" Width="275" >Average roll:</TextBlock>
                                     <TextBlock Name="AverageRollWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,10,0,10" HorizontalAlignment="Stretch" Width="100" >0</TextBlock>
                                 </StackPanel>
 
@@ -45,28 +65,28 @@
                                     <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,10,0,10" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >1. </TextBlock>
-                                    <TextBlock Name="FirstPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name </TextBlock>
+                                    <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >1.</TextBlock>
+                                    <TextBlock Name="FirstPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name</TextBlock>
                                     <TextBlock Name="FirstPropertyRevenueWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >2.</TextBlock>
-                                    <TextBlock Name="SecondPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name </TextBlock>
+                                    <TextBlock Name="SecondPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name</TextBlock>
                                     <TextBlock Name="SecondPropertyRevenueWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >3.</TextBlock>
-                                    <TextBlock Name="ThirdPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name </TextBlock>
+                                    <TextBlock Name="ThirdPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name</TextBlock>
                                     <TextBlock Name="ThirdPropertyRevenueWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >4.</TextBlock>
-                                    <TextBlock Name="FourthPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name </TextBlock>
+                                    <TextBlock Name="FourthPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name</TextBlock>
                                     <TextBlock Name="FourthPropertyRevenueWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="20" >5.</TextBlock>
-                                    <TextBlock Name="FifthPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name </TextBlock>
+                                    <TextBlock Name="FifthPropertyNameWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="200" >Property Name</TextBlock>
                                     <TextBlock Name="FifthPropertyRevenueWinner" FocusVisualPrimaryBrush="Black" FontSize="14" FontFamily="Arial Black" Margin = "0,5,0,5" HorizontalAlignment="Stretch" Width="120" >Average Revenue</TextBlock>
                                 </StackPanel>
                             </StackPanel>
@@ -117,9 +137,9 @@
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Name="MostLandedOnProperty" FocusVisualPrimaryBrush="Black" FontSize="18" FontFamily="Arial Black" HorizontalAlignment="Left" >-</TextBlock>
+                                <TextBlock Name="MostLandedOnProperty" FocusVisualPrimaryBrush="Black" FontSize="18" FontFamily="Arial Black" TextWrapping="WrapWholeWords" Width="750" Height="57" >-</TextBlock>
                             </StackPanel>
-                            
+
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
